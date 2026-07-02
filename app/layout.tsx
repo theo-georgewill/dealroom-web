@@ -39,19 +39,19 @@ export default function RootLayout({
   children: React.ReactNode
 }>) {
   return (
-    <html lang="en" className={`${geistSans.variable} ${geistMono.variable}`}>
-      <body className="font-sans antialiased bg-background text-foreground">
-        <div className="flex h-screen overflow-hidden">
+    <html lang="en" className={`${geistSans.variable} ${geistMono.variable} light`}>
+      <body className="font-sans antialiased bg-slate-50 text-foreground">
+        <div className="flex h-screen overflow-hidden bg-slate-50">
           {/* Sidebar */}
           <AppSidebar />
 
           {/* Main Content */}
-          <div className="flex-1 flex flex-col">
+          <div className="flex-1 flex flex-col bg-slate-50">
             {/* Top Navbar */}
             <TopNavbar />
 
             {/* Page Content */}
-            <main className="flex-1 overflow-y-auto bg-background">
+            <main className="flex-1 overflow-y-auto bg-slate-50">
               <div className="p-3 md:p-4 lg:p-6">{children}</div>
             </main>
           </div>
