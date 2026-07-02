@@ -81,7 +81,7 @@ export default function DealsPage() {
           <p className="text-slate-600 text-sm mt-0.5">Manage and track all your real estate transactions.</p>
         </div>
         <Link
-          href="/deals/create"
+          href="/deals/create/property"
           className="flex items-center gap-2 px-4 py-2 bg-primary text-white rounded-lg font-medium hover:bg-primary/90 transition-colors text-sm"
         >
           <Plus size={18} />
