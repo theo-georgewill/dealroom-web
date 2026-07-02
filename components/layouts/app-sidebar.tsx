@@ -84,12 +84,12 @@ export function AppSidebar() {
                   key={item.href}
                   href={item.href}
                   onClick={() => setIsOpen(false)}
-                  className={cn(
-                    'flex items-center justify-between px-4 py-2.5 rounded-lg transition-colors',
-                    active
-                      ? 'bg-accent-foreground text-primary'
-                      : 'text-foreground hover:bg-secondary'
-                  )}
+                className={cn(
+                  'flex items-center justify-between px-3 py-2 rounded-lg transition-colors',
+                  active
+                    ? 'bg-blue-50 text-primary'
+                    : 'text-foreground hover:bg-slate-100'
+                )}
                 >
                   <div className="flex items-center gap-3">
                     <Icon size={20} />
