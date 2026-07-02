@@ -1,6 +1,8 @@
 import { Analytics } from '@vercel/analytics/next'
 import type { Metadata, Viewport } from 'next'
 import { Geist, Geist_Mono } from 'next/font/google'
+import { AppSidebar } from '@/components/layouts/app-sidebar'
+import { TopNavbar } from '@/components/layouts/top-navbar'
 import './globals.css'
 
 const geistSans = Geist({ variable: '--font-geist-sans', subsets: ['latin'] })
@@ -10,34 +12,25 @@ const geistMono = Geist_Mono({
 })
 
 export const metadata: Metadata = {
-  title: 'v0 App',
-  description: 'Created with v0',
+  title: 'Deal Room - Real Estate Transaction Management',
+  description: 'Professional platform for managing real estate transactions securely',
   generator: 'v0.app',
   icons: {
     icon: [
-      {
-        url: '/icon-light-32x32.png',
-        media: '(prefers-color-scheme: light)',
-      },
-      {
-        url: '/icon-dark-32x32.png',
-        media: '(prefers-color-scheme: dark)',
-      },
       {
         url: '/icon.svg',
         type: 'image/svg+xml',
       },
     ],
-    apple: '/apple-icon.png',
   },
 }
 
 export const viewport: Viewport = {
-  colorScheme: 'light dark',
-  themeColor: [
-    { media: '(prefers-color-scheme: light)', color: 'white' },
-    { media: '(prefers-color-scheme: dark)', color: 'black' },
-  ],
+  colorScheme: 'light',
+  themeColor: '#2563eb',
+  width: 'device-width',
+  initialScale: 1,
+  userScalable: false,
 }
 
 export default function RootLayout({
@@ -47,8 +40,22 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className={`${geistSans.variable} ${geistMono.variable}`}>
-      <body className="font-sans antialiased">
-        {children}
+      <body className="font-sans antialiased bg-background text-foreground">
+        <div className="flex h-screen overflow-hidden">
+          {/* Sidebar */}
+          <AppSidebar />
+
+          {/* Main Content */}
+          <div className="flex-1 flex flex-col">
+            {/* Top Navbar */}
+            <TopNavbar />
+
+            {/* Page Content */}
+            <main className="flex-1 overflow-y-auto bg-background">
+              <div className="p-4 md:p-6 lg:p-8">{children}</div>
+            </main>
+          </div>
+        </div>
         {process.env.NODE_ENV === 'production' && <Analytics />}
       </body>
     </html>
