@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-import { useAuth } from '@/lib/context/auth-context';
+import { useAuth } from '@/hooks';
 import { Button } from '@/components/ui/button';
 import { AlertCircle, Loader2, CheckCircle } from 'lucide-react';
 
