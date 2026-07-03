@@ -207,9 +207,9 @@ function PropertyContent() {
           </label>
 
           {/* Upload Zone */}
-          <label className="border-2 border-dashed border-slate-300 rounded-lg p-8 text-center cursor-pointer hover:border-primary hover:bg-blue-50 transition-all">
-            <Upload className="mx-auto mb-2 text-slate-400" size={32} />
-            <p className="text-sm font-medium text-slate-700">Upload images</p>
+          <label className="border border-dashed border-slate-300 rounded-xl p-8 text-center cursor-pointer hover:border-primary hover:bg-blue-50 transition-all">
+            <Upload className="mx-auto mb-3 text-primary" size={40} />
+            <p className="text-sm font-semibold text-slate-700">Upload images</p>
             <p className="text-xs text-slate-500 mt-1">
               PNG, JPG or WebP (Max 10MB each)
             </p>
