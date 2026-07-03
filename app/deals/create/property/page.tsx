@@ -201,7 +201,7 @@ function PropertyContent() {
         </div>
 
         {/* Image Upload */}
-        <div className="border border-dashed border-slate-300 rounded-xl p-6">
+        <div>
           <label className="block text-sm font-semibold text-foreground mb-2">
             Property Images
           </label>
@@ -210,7 +210,7 @@ function PropertyContent() {
           </p>
 
           {/* Upload Zone */}
-          <label className="border border-dashed border-slate-200 rounded-lg p-8 text-center cursor-pointer hover:border-primary hover:bg-blue-50 transition-all block">
+          <label className="border border-dashed border-slate-300 rounded-lg p-8 text-center cursor-pointer hover:border-primary hover:bg-blue-50 transition-all block mb-4">
             <Upload className="mx-auto mb-3 text-primary" size={40} />
             <p className="text-sm font-semibold text-slate-700">Upload images</p>
             <p className="text-xs text-slate-500 mt-1">
@@ -227,7 +227,7 @@ function PropertyContent() {
 
           {/* Image Preview */}
           {uploadedImages.length > 0 && (
-            <div className="grid grid-cols-3 gap-3 mt-4">
+            <div className="grid grid-cols-3 gap-3">
               {uploadedImages.map((image, idx) => (
                 <div key={idx} className="relative group">
                   <img
