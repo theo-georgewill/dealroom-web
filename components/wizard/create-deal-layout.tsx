@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import { ChevronRight } from 'lucide-react';
 import { WizardStepper } from './wizard-stepper';
+import { useCreateDealStore } from '@/lib/store/create-deal-store';
 
 interface CreateDealLayoutProps {
   children: React.ReactNode;
@@ -59,13 +60,55 @@ export function CreateDealLayout({
 }
 
 function DealSummarySidebar({ currentStep }: { currentStep: number }) {
+  const store = useCreateDealStore();
+  const hasPropertyImage = store.property.images && store.property.images.length > 0;
+
   return (
     <div className="bg-white border border-slate-200 rounded-2xl p-6 sticky top-24 h-fit">
       <h3 className="text-sm font-bold text-foreground mb-4">Deal Summary</h3>
 
-      <div className="space-y-3">
-        {/* Placeholder for deal summary data */}
-        <div className="h-32 bg-slate-100 rounded-lg" />
+      <div className="space-y-4">
+        {/* Property Image */}
+        {hasPropertyImage && (
+          <img
+            src={store.property.images[0]}
+            alt={store.property.name || 'Property'}
+            className="w-full h-32 rounded-xl object-cover"
+          />
+        )}
+
+        {/* Deal Info */}
+        <div className="space-y-2">
+          {store.property.name && (
+            <div>
+              <p className="text-xs text-slate-600 font-medium">Property</p>
+              <p className="text-sm font-semibold text-foreground">{store.property.name}</p>
+            </div>
+          )}
+
+          {store.property.type && (
+            <div>
+              <p className="text-xs text-slate-600 font-medium">Type</p>
+              <p className="text-sm font-semibold text-foreground">{store.property.type}</p>
+            </div>
+          )}
+
+          {store.terms?.dealValue && (
+            <div>
+              <p className="text-xs text-slate-600 font-medium">Deal Value</p>
+              <p className="text-sm font-semibold text-foreground">
+                ₦{store.terms.dealValue.toLocaleString()}
+              </p>
+            </div>
+          )}
+
+          {store.terms?.closingDate && (
+            <div>
+              <p className="text-xs text-slate-600 font-medium">Closing Date</p>
+              <p className="text-sm font-semibold text-foreground">{store.terms.closingDate}</p>
+            </div>
+          )}
+        </div>
 
         {/* What's next section */}
         <div className="mt-6 pt-6 border-t border-slate-200">
