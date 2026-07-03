@@ -201,13 +201,16 @@ function PropertyContent() {
         </div>
 
         {/* Image Upload */}
-        <div>
-          <label className="block text-sm font-semibold text-foreground mb-3">
+        <div className="border border-dashed border-slate-300 rounded-xl p-6">
+          <label className="block text-sm font-semibold text-foreground mb-2">
             Property Images
           </label>
+          <p className="text-xs text-slate-500 mb-4">
+            Upload at least one image of the property.
+          </p>
 
           {/* Upload Zone */}
-          <label className="border border-dashed border-slate-300 rounded-xl p-8 text-center cursor-pointer hover:border-primary hover:bg-blue-50 transition-all">
+          <label className="border border-dashed border-slate-200 rounded-lg p-8 text-center cursor-pointer hover:border-primary hover:bg-blue-50 transition-all block">
             <Upload className="mx-auto mb-3 text-primary" size={40} />
             <p className="text-sm font-semibold text-slate-700">Upload images</p>
             <p className="text-xs text-slate-500 mt-1">
