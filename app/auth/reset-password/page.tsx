@@ -48,13 +48,24 @@ function ResetPasswordContent() {
       return;
     }
 
+    if (isSubmitting || isLoading) {
+      return;
+    }
+
     setIsSubmitting(true);
 
     try {
-      await resetPassword(token, password);
+      await resetPassword({
+        token,
+        password,
+        confirmPassword,
+      });
       setSuccess(true);
     } catch (err: any) {
-      setError(err.message || 'Failed to reset password. Please try again.');
+      const errorMessage = err?.response?.data?.message || 
+                          err?.message || 
+                          'Failed to reset password. Please try again.';
+      setError(errorMessage);
     } finally {
       setIsSubmitting(false);
     }
@@ -114,7 +125,10 @@ function ResetPasswordContent() {
             <input
               type="password"
               value={password}
-              onChange={(e) => setPassword(e.target.value)}
+              onChange={(e) => {
+                setPassword(e.target.value);
+                if (error) setError('');
+              }}
               placeholder="••••••••"
               required
               className="w-full px-3 py-2.5 bg-background border border-border rounded-lg text-foreground placeholder-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all"
@@ -132,7 +146,10 @@ function ResetPasswordContent() {
             <input
               type="password"
               value={confirmPassword}
-              onChange={(e) => setConfirmPassword(e.target.value)}
+              onChange={(e) => {
+                setConfirmPassword(e.target.value);
+                if (error) setError('');
+              }}
               placeholder="••••••••"
               required
               className="w-full px-3 py-2.5 bg-background border border-border rounded-lg text-foreground placeholder-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all"

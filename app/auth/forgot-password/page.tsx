@@ -16,14 +16,27 @@ export default function ForgotPasswordPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
+
+    if (!email.trim()) {
+      setError('Please enter your email address');
+      return;
+    }
+
+    if (isSubmitting || isLoading) {
+      return;
+    }
+
     setIsSubmitting(true);
 
     try {
-      await forgotPassword(email);
+      await forgotPassword(email.trim().toLowerCase());
       setSuccess(true);
       setEmail('');
     } catch (err: any) {
-      setError(err.message || 'Failed to send reset email. Please try again.');
+      const errorMessage = err?.response?.data?.message || 
+                          err?.message || 
+                          'Failed to send reset email. Please try again.';
+      setError(errorMessage);
     } finally {
       setIsSubmitting(false);
     }
@@ -74,7 +87,10 @@ export default function ForgotPasswordPage() {
             <input
               type="email"
               value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              onChange={(e) => {
+                setEmail(e.target.value);
+                if (error) setError('');
+              }}
               placeholder="you@example.com"
               required
               className="w-full px-3 py-2.5 bg-background border border-border rounded-lg text-foreground placeholder-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all"

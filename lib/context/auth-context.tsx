@@ -38,9 +38,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       const response = await authService.register(data);
       authService.setStoredUser(response.user);
       setUser(response.user);
-    } finally {
+    } catch (error) {
       setIsLoading(false);
+      throw error;
     }
+    setIsLoading(false);
   };
 
   const forgotPassword = async (email: string) => {
