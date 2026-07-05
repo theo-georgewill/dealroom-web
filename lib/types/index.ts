@@ -1,3 +1,50 @@
+// Auth Types
+export interface AuthUser {
+  id: string;
+  email: string;
+  name: string;
+  avatar?: string;
+  role: 'admin' | 'user' | 'agent';
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface AuthResponse {
+  token: string;
+  refreshToken?: string;
+  user: AuthUser;
+}
+
+export interface LoginRequest {
+  email: string;
+  password: string;
+}
+
+export interface RegisterRequest {
+  email: string;
+  password: string;
+  name: string;
+  confirmPassword: string;
+}
+
+export interface ResetPasswordRequest {
+  token: string;
+  password: string;
+  confirmPassword: string;
+}
+
+export interface AuthContextType {
+  user: AuthUser | null;
+  isLoading: boolean;
+  isAuthenticated: boolean;
+  login: (credentials: LoginRequest) => Promise<void>;
+  register: (data: RegisterRequest) => Promise<void>;
+  logout: () => Promise<void>;
+  getCurrentUser: () => Promise<AuthUser | null>;
+  forgotPassword: (email: string) => Promise<void>;
+  resetPassword: (data: ResetPasswordRequest) => Promise<void>;
+}
+
 // User and Authentication Types
 export type UserRole = 'Buyer' | 'Seller' | 'Lawyer' | 'Agent' | 'Admin' | 'Escrow Provider';
 
