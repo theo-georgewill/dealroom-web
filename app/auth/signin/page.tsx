@@ -21,10 +21,14 @@ export default function SignInPage() {
     setIsSubmitting(true);
 
     try {
-      await login(email, password);
+      await login({ email, password });
       router.push('/dashboard');
     } catch (err: any) {
-      setError(err.message || 'Failed to sign in. Please check your credentials.');
+      // Handle different error types
+      const errorMessage = err?.response?.data?.message || 
+                          err?.message || 
+                          'Failed to sign in. Please check your credentials and try again.';
+      setError(errorMessage);
     } finally {
       setIsSubmitting(false);
     }
