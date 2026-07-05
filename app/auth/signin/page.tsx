@@ -47,31 +47,31 @@ export default function SignInPage() {
   };
 
   return (
-    <div className="w-full">
+    <div className="w-full max-w-md mx-auto">
       {/* Header */}
-      <div className="mb-8 text-center">
-        <div className="inline-flex items-center justify-center w-12 h-12 bg-primary rounded-lg mb-4">
-          <span className="text-lg font-bold text-primary-foreground">DR</span>
+      <div className="mb-10 text-center">
+        <div className="inline-flex items-center justify-center w-14 h-14 bg-gradient-to-br from-primary to-blue-600 rounded-xl mb-6 shadow-lg">
+          <span className="text-xl font-bold text-primary-foreground">DR</span>
         </div>
-        <h1 className="text-2xl font-bold text-foreground mb-2">Sign In to Deal Room</h1>
-        <p className="text-sm text-muted-foreground">
-          Enter your credentials to access your account
+        <h1 className="text-3xl font-bold text-foreground mb-2">Sign In</h1>
+        <p className="text-base text-muted-foreground">
+          Welcome back to Deal Room
         </p>
       </div>
 
       {/* Error Alert */}
       {error && (
-        <div className="mb-6 p-4 bg-destructive/10 border border-destructive/30 rounded-lg flex gap-3">
-          <AlertCircle size={20} className="text-destructive flex-shrink-0 mt-0.5" />
-          <p className="text-sm text-destructive">{error}</p>
+        <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg flex gap-3 animate-in fade-in">
+          <AlertCircle size={20} className="text-red-600 flex-shrink-0 mt-0.5" />
+          <p className="text-sm text-red-700 font-medium">{error}</p>
         </div>
       )}
 
       {/* Form */}
-      <form onSubmit={handleSubmit} className="space-y-4">
+      <form onSubmit={handleSubmit} className="space-y-5">
         {/* Email */}
-        <div>
-          <label className="block text-sm font-medium text-foreground mb-2">
+        <div className="space-y-2">
+          <label className="block text-sm font-semibold text-foreground">
             Email Address
           </label>
           <input
@@ -83,17 +83,17 @@ export default function SignInPage() {
             }}
             placeholder="you@example.com"
             required
-            className="w-full px-3 py-2.5 bg-background border border-border rounded-lg text-foreground placeholder-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all"
+            className="w-full px-4 py-3 bg-white border border-border rounded-lg text-foreground placeholder-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all"
           />
         </div>
 
         {/* Password */}
-        <div>
-          <div className="flex items-center justify-between mb-2">
-            <label className="block text-sm font-medium text-foreground">
+        <div className="space-y-2">
+          <div className="flex items-center justify-between">
+            <label className="block text-sm font-semibold text-foreground">
               Password
             </label>
-            <Link href="/auth/forgot-password" className="text-xs text-primary hover:underline">
+            <Link href="/auth/forgot-password" className="text-xs text-primary font-medium hover:underline transition-colors">
               Forgot password?
             </Link>
           </div>
@@ -106,7 +106,7 @@ export default function SignInPage() {
             }}
             placeholder="••••••••"
             required
-            className="w-full px-3 py-2.5 bg-background border border-border rounded-lg text-foreground placeholder-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all"
+            className="w-full px-4 py-3 bg-white border border-border rounded-lg text-foreground placeholder-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all"
           />
         </div>
 
@@ -114,11 +114,11 @@ export default function SignInPage() {
         <Button
           type="submit"
           disabled={isSubmitting || isLoading}
-          className="w-full mt-6"
+          className="w-full mt-8 py-3 font-semibold text-base"
         >
           {isSubmitting || isLoading ? (
             <>
-              <Loader2 size={16} className="animate-spin mr-2" />
+              <Loader2 size={18} className="animate-spin mr-2" />
               Signing in...
             </>
           ) : (
@@ -127,12 +127,27 @@ export default function SignInPage() {
         </Button>
       </form>
 
+      {/* Divider */}
+      <div className="relative my-8">
+        <div className="absolute inset-0 flex items-center">
+          <div className="w-full border-t border-border"></div>
+        </div>
+        <div className="relative flex justify-center text-xs">
+          <span className="px-2 bg-background text-muted-foreground">Or continue with</span>
+        </div>
+      </div>
+
+      {/* Social Login (placeholder for future) */}
+      <p className="text-center text-xs text-muted-foreground mb-8">
+        More authentication methods coming soon
+      </p>
+
       {/* Sign Up Link */}
-      <div className="mt-6 text-center border-t border-border pt-6">
+      <div className="text-center pt-4 border-t border-border">
         <p className="text-sm text-muted-foreground">
           Don&apos;t have an account?{' '}
-          <Link href="/auth/signup" className="text-primary font-medium hover:underline">
-            Sign up here
+          <Link href="/auth/signup" className="text-primary font-semibold hover:underline transition-colors">
+            Create one
           </Link>
         </p>
       </div>
