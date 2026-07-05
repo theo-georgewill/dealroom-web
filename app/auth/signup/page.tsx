@@ -22,25 +22,41 @@ export default function SignUpPage() {
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
+    if (error) {
+      setError('');
+    }
   };
 
   const validateForm = (): boolean => {
-    if (!formData.fullName.trim()) {
+    const fullName = formData.fullName.trim();
+    const email = formData.email.trim().toLowerCase();
+    
+    if (!fullName) {
       setError('Full name is required');
       return false;
     }
-    if (!formData.email.trim()) {
+    
+    if (!email) {
       setError('Email is required');
       return false;
     }
+    
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      setError('Please enter a valid email address');
+      return false;
+    }
+    
     if (formData.password.length < 8) {
       setError('Password must be at least 8 characters');
       return false;
     }
+    
     if (formData.password !== formData.confirmPassword) {
       setError('Passwords do not match');
       return false;
     }
+    
     return true;
   };
 
@@ -52,13 +68,25 @@ export default function SignUpPage() {
       return;
     }
 
+    if (isSubmitting || isLoading) {
+      return;
+    }
+
     setIsSubmitting(true);
 
     try {
-      await register(formData.email, formData.password, formData.fullName);
+      await register({
+        fullName: formData.fullName.trim(),
+        email: formData.email.trim().toLowerCase(),
+        password: formData.password,
+        confirmPassword: formData.confirmPassword,
+      });
       router.push('/dashboard');
     } catch (err: any) {
-      setError(err.message || 'Failed to create account. Please try again.');
+      const errorMessage = err?.response?.data?.message || 
+                          err?.message || 
+                          'Failed to create account. Please try again.';
+      setError(errorMessage);
     } finally {
       setIsSubmitting(false);
     }

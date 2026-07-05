@@ -18,13 +18,25 @@ export default function SignInPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
+
+    if (!email.trim() || !password) {
+      setError('Please enter both email and password');
+      return;
+    }
+
+    if (isSubmitting || isLoading) {
+      return;
+    }
+
     setIsSubmitting(true);
 
     try {
-      await login({ email, password });
+      await login({ 
+        email: email.trim().toLowerCase(), 
+        password 
+      });
       router.push('/dashboard');
     } catch (err: any) {
-      // Handle different error types
       const errorMessage = err?.response?.data?.message || 
                           err?.message || 
                           'Failed to sign in. Please check your credentials and try again.';
@@ -65,7 +77,10 @@ export default function SignInPage() {
           <input
             type="email"
             value={email}
-            onChange={(e) => setEmail(e.target.value)}
+            onChange={(e) => {
+              setEmail(e.target.value);
+              if (error) setError('');
+            }}
             placeholder="you@example.com"
             required
             className="w-full px-3 py-2.5 bg-background border border-border rounded-lg text-foreground placeholder-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all"
@@ -85,7 +100,10 @@ export default function SignInPage() {
           <input
             type="password"
             value={password}
-            onChange={(e) => setPassword(e.target.value)}
+            onChange={(e) => {
+              setPassword(e.target.value);
+              if (error) setError('');
+            }}
             placeholder="••••••••"
             required
             className="w-full px-3 py-2.5 bg-background border border-border rounded-lg text-foreground placeholder-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all"
