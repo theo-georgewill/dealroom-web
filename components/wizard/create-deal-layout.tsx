@@ -93,19 +93,19 @@ function DealSummarySidebar({ currentStep }: { currentStep: number }) {
             </div>
           )}
 
-          {store.terms?.dealValue && (
+          {store.dealTerms?.dealValue && (
             <div>
               <p className="text-xs text-slate-600 font-medium">Deal Value</p>
               <p className="text-sm font-semibold text-foreground">
-                ₦{store.terms.dealValue.toLocaleString()}
+                ₦{store.dealTerms.dealValue.toLocaleString()}
               </p>
             </div>
           )}
 
-          {store.terms?.closingDate && (
+          {store.dealTerms?.closingDate && (
             <div>
               <p className="text-xs text-slate-600 font-medium">Closing Date</p>
-              <p className="text-sm font-semibold text-foreground">{store.terms.closingDate}</p>
+              <p className="text-sm font-semibold text-foreground">{store.dealTerms.closingDate}</p>
             </div>
           )}
         </div>
