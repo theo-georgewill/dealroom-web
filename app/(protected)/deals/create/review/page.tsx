@@ -1,23 +1,47 @@
 'use client';
 
-import { Suspense } from 'react';
+import { Suspense, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { MapPin, Users, DollarSign, Shield } from 'lucide-react';
 import { CreateDealLayout } from '@/components/wizard/create-deal-layout';
 import { useCreateDealStore } from '@/lib/store/create-deal-store';
 import { formatCurrency, formatDate } from '@/lib/utils';
+import { dealsService } from '@/lib/services/deals.service';
+import { paymentService } from '@/lib/services/payment.service';
 
 function ReviewContent() {
   const router = useRouter();
   const store = useCreateDealStore();
+  const [isCreating, setIsCreating] = useState(false);
 
   const handleCreateDeal = async () => {
-    // In a real app, this would call the backend API
-    // For now, we're just moving to the success page
-    const dealId = `DR-${new Date().getFullYear()}-${String(Math.floor(Math.random() * 10000)).padStart(5, '0')}`;
-    
-    // Store deal ID in a temp location or pass via URL
-    router.push(`/deals/create/success?dealId=${dealId}`);
+    setIsCreating(true);
+
+    try {
+      // 1. Create deal
+      const deal = await dealsService.createDeal({
+        property: store.property,
+        stakeholders: store.stakeholders.map(({ id, ...stakeholder }) => stakeholder),
+        terms: store.dealTerms,
+        escrow: store.escrow,
+      });
+
+      // 2. Initialize Nomba escrow payment
+      const payment = await paymentService.initializeEscrow({
+        escrowId: deal.payment.escrowId,
+        amount: deal.payment.amount,
+      });
+
+      // 3. Redirect to Nomba
+      window.open(
+        payment.checkoutUrl,
+        '_blank',
+        'noopener,noreferrer'
+      );
+      router.push(`/deals/${deal.createdDeal.id}`);
+    } finally {
+      setIsCreating(false);
+    }
   };
 
   const onBack = () => {

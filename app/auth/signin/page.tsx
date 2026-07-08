@@ -29,7 +29,6 @@ export default function SignInPage() {
     }
 
     setIsSubmitting(true);
-
     try {
       await login({ 
         email: email.trim().toLowerCase(), 
@@ -38,8 +37,8 @@ export default function SignInPage() {
       router.push('/dashboard');
     } catch (err: any) {
       const errorMessage = err?.response?.data?.message || 
-                          err?.message || 
-                          'Failed to sign in. Please check your credentials and try again.';
+        err?.message || 
+        'Failed to sign in. Please check your credentials and try again.';
       setError(errorMessage);
     } finally {
       setIsSubmitting(false);
@@ -146,7 +145,7 @@ export default function SignInPage() {
       <div className="text-center pt-4 border-t border-border">
         <p className="text-sm text-muted-foreground">
           Don&apos;t have an account?{' '}
-          <Link href="/auth/signup" className="text-primary font-semibold hover:underline transition-colors">
+          <Link href="/auth/register" className="text-primary font-semibold hover:underline transition-colors">
             Create one
           </Link>
         </p>

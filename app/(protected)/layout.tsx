@@ -24,29 +24,25 @@ export default function ProtectedLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" className={`${geistSans.variable} ${geistMono.variable} light`}>
-      <body className="font-sans antialiased bg-slate-50 text-foreground">
-        <AuthProvider>
-          <ProtectedRoute>
-            <div className="flex h-screen overflow-hidden bg-slate-50">
-              {/* Sidebar */}
-              <AppSidebar />
+    <>
+      <ProtectedRoute>
+        <div className="flex h-screen overflow-hidden bg-slate-50">
+          {/* Sidebar */}
+          <AppSidebar />
 
-              {/* Main Content */}
-              <div className="flex-1 flex flex-col bg-slate-50">
-                {/* Top Navbar */}
-                <TopNavbar />
+          {/* Main Content */}
+          <div className="flex-1 flex flex-col bg-slate-50">
+            {/* Top Navbar */}
+            <TopNavbar />
 
-                {/* Page Content */}
-                <main className="flex-1 overflow-y-auto bg-slate-50">
-                  <div className="p-3 md:p-4 lg:p-6">{children}</div>
-                </main>
-              </div>
-            </div>
-          </ProtectedRoute>
-        </AuthProvider>
-        {process.env.NODE_ENV === 'production' && <Analytics />}
-      </body>
-    </html>
+            {/* Page Content */}
+            <main className="flex-1 overflow-y-auto bg-slate-50">
+              <div className="p-3 md:p-4 lg:p-6">{children}</div>
+            </main>
+          </div>
+        </div>
+      </ProtectedRoute>
+      {process.env.NODE_ENV === 'production' && <Analytics />}
+    </>
   );
 }

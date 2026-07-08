@@ -11,10 +11,19 @@ import { WizardNavigation } from '@/components/wizard/wizard-navigation';
 import { useCreateDealStore } from '@/lib/store/create-deal-store';
 
 const escrowSchema = z.object({
-  amount: z.coerce.number().min(1, 'Escrow amount is required'),
-  fundingSource: z.string().min(1, 'Funding source is required'),
-  releaseConditions: z.array(z.string()).min(1, 'Select at least one release condition'),
-  holdingPeriod: z.coerce.number().min(1, 'Holding period is required'),
+  amount: z.number().positive('Escrow amount is required'),
+
+  fundingSource: z.enum([
+    'Buyer Deposit',
+    'Split Deposit',
+    'Third Party',
+  ]),
+
+  releaseConditions: z
+    .array(z.string())
+    .min(1, 'Select at least one release condition'),
+
+  holdingPeriod: z.number().positive('Holding period is required'),
 });
 
 type EscrowFormData = z.infer<typeof escrowSchema>;
@@ -39,7 +48,7 @@ function EscrowContent() {
   } = useForm<EscrowFormData>({
     resolver: zodResolver(escrowSchema),
     defaultValues: {
-      amount: store.escrow.amount || undefined,
+      amount: store.escrow.amount ?? undefined,
       fundingSource: store.escrow.fundingSource,
       releaseConditions: store.escrow.releaseConditions,
       holdingPeriod: store.escrow.holdingPeriod,
@@ -58,6 +67,11 @@ function EscrowContent() {
     router.push('/deals/create/terms');
   };
 
+  const FUNDING_OPTIONS = [
+    'Buyer Deposit',
+    'Split Deposit',
+    'Third Party',
+  ] as const;
   return (
     <CreateDealLayout
       currentStep={3}
@@ -73,7 +87,9 @@ function EscrowContent() {
           <div className="flex gap-2">
             <div className="flex-1">
               <input
-                {...register('amount')}
+                {...register('amount', {
+                  valueAsNumber: true,
+                })}
                 type="number"
                 placeholder="85,000,000"
                 className="w-full px-4 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
@@ -107,7 +123,7 @@ function EscrowContent() {
             Funding Source <span className="text-red-500">*</span>
           </label>
           <div className="space-y-2">
-            {['Buyer Deposit', 'Split Deposit', 'Third Party'].map((option) => (
+            {FUNDING_OPTIONS.map((option) => (
               <label key={option} className="flex items-center gap-3 p-3 border border-slate-200 rounded-lg cursor-pointer hover:bg-slate-50">
                 <input
                   {...register('fundingSource')}
@@ -160,7 +176,9 @@ function EscrowContent() {
           </label>
           <div className="flex items-center gap-2">
             <input
-              {...register('holdingPeriod')}
+              {...register('holdingPeriod', {
+                valueAsNumber: true,
+              })}
               type="number"
               min="1"
               className="w-20 px-4 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
@@ -186,6 +204,7 @@ function EscrowContent() {
           onBack={onBack}
           onNext={handleSubmit(onSubmit)}
           canProceed={formData.releaseConditions && formData.releaseConditions.length > 0}
+          isLastStep={false}
         />
       </form>
     </CreateDealLayout>

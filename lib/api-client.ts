@@ -1,13 +1,20 @@
-import axios, { AxiosInstance, AxiosError, InternalAxiosRequestConfig } from 'axios';
+import axios, {
+  AxiosInstance,
+  AxiosError,
+  InternalAxiosRequestConfig,
+} from 'axios';
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api';
+const API_BASE_URL =
+  process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api';
 
 class APIClient {
   private client: AxiosInstance;
+  private refreshPromise: Promise<any> | null = null;
 
   constructor() {
     this.client = axios.create({
       baseURL: API_BASE_URL,
+      withCredentials: true,
       headers: {
         'Content-Type': 'application/json',
       },
@@ -17,61 +24,47 @@ class APIClient {
   }
 
   private setupInterceptors() {
-    // Request interceptor
     this.client.interceptors.request.use(
-      (config: InternalAxiosRequestConfig) => {
-        const token = this.getAuthToken();
-        if (token) {
-          config.headers.Authorization = `Bearer ${token}`;
-        }
-        return config;
-      },
-      (error: AxiosError) => {
-        return Promise.reject(error);
-      }
+      (config: InternalAxiosRequestConfig) => config,
+      (error: AxiosError) => Promise.reject(error)
     );
 
-    // Response interceptor
     this.client.interceptors.response.use(
       (response) => response,
-      (error: AxiosError) => {
-        // Handle 401 Unauthorized - token expired or invalid
-        if (error.response?.status === 401) {
-          this.handleUnauthorized();
-        }
+      async (error: AxiosError) => {
+        const originalRequest = error.config as InternalAxiosRequestConfig & {
+          _retry?: boolean;
+        };
 
-        // Handle 403 Forbidden
-        if (error.response?.status === 403) {
-          // Permission denied
+        if (
+          error.response?.status === 401 &&
+          originalRequest &&
+          !originalRequest._retry &&
+          !originalRequest.url?.includes('/auth/refresh') &&
+          !originalRequest.url?.includes('/auth/login')
+        ) {
+          originalRequest._retry = true;
+
+          try {
+            if (!this.refreshPromise) {
+              this.refreshPromise = this.client
+                .post('/auth/refresh')
+                .finally(() => {
+                  this.refreshPromise = null;
+                });
+            }
+
+            await this.refreshPromise;
+
+            return this.client(originalRequest);
+          } catch {
+            return Promise.reject(error);
+          }
         }
 
         return Promise.reject(error);
       }
     );
-  }
-
-  private getAuthToken(): string | null {
-    if (typeof window !== 'undefined') {
-      return localStorage.getItem('authToken');
-    }
-    return null;
-  }
-
-  private handleUnauthorized() {
-    if (typeof window !== 'undefined') {
-      localStorage.removeItem('authToken');
-      localStorage.removeItem('currentUser');
-      // Redirect to login
-      window.location.href = '/auth/signin';
-    }
-  }
-
-  public setAuthToken(token: string) {
-    localStorage.setItem('authToken', token);
-  }
-
-  public clearAuthToken() {
-    localStorage.removeItem('authToken');
   }
 
   get<T = any>(url: string, config?: any) {

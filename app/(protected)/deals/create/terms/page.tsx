@@ -11,13 +11,22 @@ import { useCreateDealStore } from '@/lib/store/create-deal-store';
 import { formatCurrency } from '@/lib/utils';
 
 const termsSchema = z.object({
-  dealType: z.string().min(1, 'Deal type is required'),
-  currency: z.string().min(1, 'Currency is required'),
-  dealValue: z.coerce.number().min(1, 'Deal value is required'),
-  earnestMoney: z.coerce.number().optional(),
-  closingDate: z.string().min(1, 'Closing date is required'),
+  dealType: z.enum([
+    'Purchase',
+    'Lease',
+    'Sale',
+    'Exchange',
+  ]),
+  currency: z.string(),
+  dealValue: z.number().positive('Deal value is required'),
+  earnestMoney: z.number().optional(),
+  closingDate: z.string().min(1),
   longStopDate: z.string().optional(),
-  paymentStructure: z.string().min(1, 'Payment structure is required'),
+  paymentStructure: z.enum([
+    'Single Payment',
+    'Milestone Payments',
+    'Custom Structure',
+  ]),
 });
 
 type TermsFormData = z.infer<typeof termsSchema>;
@@ -36,8 +45,8 @@ function TermsContent() {
     defaultValues: {
       dealType: store.dealTerms.dealType,
       currency: store.dealTerms.currency,
-      dealValue: store.dealTerms.dealValue || undefined,
-      earnestMoney: store.dealTerms.earnestMoney || undefined,
+      dealValue: store.dealTerms.dealValue ?? undefined,
+      earnestMoney: store.dealTerms.earnestMoney ?? undefined,
       closingDate: store.dealTerms.closingDate,
       longStopDate: store.dealTerms.longStopDate,
       paymentStructure: store.dealTerms.paymentStructure,
@@ -105,7 +114,9 @@ function TermsContent() {
               Deal Value <span className="text-red-500">*</span>
             </label>
             <input
-              {...register('dealValue')}
+              {...register('dealValue', {
+                valueAsNumber: true,
+              })}
               type="number"
               placeholder="85,000,000"
               className="w-full px-4 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
@@ -125,7 +136,9 @@ function TermsContent() {
               Earnest Money (Optional)
             </label>
             <input
-              {...register('earnestMoney')}
+              {...register('earnestMoney', {
+                valueAsNumber: true,
+              })}
               type="number"
               placeholder="5,000,000"
               className="w-full px-4 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
@@ -198,6 +211,7 @@ function TermsContent() {
           onBack={onBack}
           onNext={handleSubmit(onSubmit)}
           canProceed={true}
+          isLastStep={false}
         />
       </form>
     </CreateDealLayout>

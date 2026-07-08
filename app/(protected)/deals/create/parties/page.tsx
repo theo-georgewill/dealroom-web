@@ -13,11 +13,13 @@ import { useCreateDealStore, StakeholderFormData } from '@/lib/store/create-deal
 const stakeholderSchema = z.object({
   fullName: z.string().min(1, 'Name is required'),
   email: z.string().email('Valid email is required'),
-  phone: z.string().min(10, 'Valid phone number is required'),
-  company: z.string().optional(),
-  role: z.string().optional(),
-  idType: z.string().optional(),
-  idNumber: z.string().optional(),
+  phone: z
+    .string()
+    .refine(
+      (value) => value === '' || value.length >= 10,
+      'Valid phone number is required'
+    )
+    .optional(),
 });
 
 type StakeholderFormInput = z.infer<typeof stakeholderSchema>;
@@ -50,10 +52,6 @@ function PartiesContent() {
       fullName: data.fullName,
       email: data.email,
       phone: data.phone,
-      company: data.company,
-      role: data.role,
-      idType: data.idType,
-      idNumber: data.idNumber,
     };
 
     store.addStakeholder(stakeholder);
@@ -153,7 +151,7 @@ function PartiesContent() {
 
             <div>
               <label className="block text-sm font-semibold text-foreground mb-1">
-                Phone <span className="text-red-500">*</span>
+                Phone 
               </label>
               <input
                 {...register('phone')}
@@ -164,32 +162,6 @@ function PartiesContent() {
               {errors.phone && (
                 <p className="text-red-500 text-xs mt-1">{errors.phone.message}</p>
               )}
-            </div>
-          </div>
-
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <label className="block text-sm font-semibold text-foreground mb-1">
-                Company
-              </label>
-              <input
-                {...register('company')}
-                type="text"
-                placeholder="Company name"
-                className="w-full px-4 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm font-semibold text-foreground mb-1">
-                Role / Title
-              </label>
-              <input
-                {...register('role')}
-                type="text"
-                placeholder="Role"
-                className="w-full px-4 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
-              />
             </div>
           </div>
 
@@ -256,6 +228,7 @@ function PartiesContent() {
           onBack={onBack}
           onNext={onProceed}
           canProceed={store.stakeholders.length > 0}
+          isLastStep={false}
         />
       </form>
     </CreateDealLayout>

@@ -8,49 +8,43 @@ import type {
 } from '@/lib/types/auth';
 
 class AuthService {
-  async login(credentials: LoginRequest): Promise<AuthResponse> {
-    const response = await apiClient.post<AuthResponse>('/auth/login', credentials);
-    if (response.data.token) {
-      apiClient.setAuthToken(response.data.token);
-    }
-    return response.data;
+  async login(credentials: LoginRequest): Promise<{ user: User }> {
+    const response = await apiClient.post<AuthResponse>(
+      '/auth/login',
+      credentials
+    );
+
+    return {
+      user: response.data.data.user,
+    };
   }
 
-  async register(data: RegisterRequest): Promise<AuthResponse> {
+  async register(data: RegisterRequest): Promise<{ user: User }> {
     const { confirmPassword, ...payload } = data;
-    const response = await apiClient.post<AuthResponse>('/auth/register', payload);
-    if (response.data.token) {
-      apiClient.setAuthToken(response.data.token);
-    }
-    return response.data;
+    const response = await apiClient.post<AuthResponse>(
+      '/auth/register',
+      payload
+    );
+    return {
+      user: response.data.data.user,
+    };
   }
 
   async logout(): Promise<void> {
-    try {
-      await apiClient.post('/auth/logout');
-    } finally {
-      apiClient.clearAuthToken();
-      localStorage.removeItem('currentUser');
-    }
+    await apiClient.post('/auth/logout');
   }
 
   async getCurrentUser(): Promise<User | null> {
     try {
-      const response = await apiClient.get<User>('/auth/me');
-      return response.data;
+      const response = await apiClient.get('/users/me');
+      return response.data.data;
     } catch (error) {
       return null;
     }
   }
 
-  async refreshToken(refreshToken: string): Promise<AuthResponse> {
-    const response = await apiClient.post<AuthResponse>('/auth/refresh', {
-      refreshToken,
-    });
-    if (response.data.token) {
-      apiClient.setAuthToken(response.data.token);
-    }
-    return response.data;
+  async refreshSession(): Promise<void> {
+    await apiClient.post('/auth/refresh');
   }
 
   async forgotPassword(email: string): Promise<void> {
@@ -62,33 +56,7 @@ class AuthService {
     await apiClient.post('/auth/reset-password', payload);
   }
 
-  getStoredToken(): string | null {
-    if (typeof window !== 'undefined') {
-      return localStorage.getItem('authToken');
-    }
-    return null;
-  }
 
-  setStoredUser(user: User): void {
-    if (typeof window !== 'undefined') {
-      localStorage.setItem('currentUser', JSON.stringify(user));
-    }
-  }
-
-  getStoredUser(): User | null {
-    if (typeof window !== 'undefined') {
-      const user = localStorage.getItem('currentUser');
-      return user ? JSON.parse(user) : null;
-    }
-    return null;
-  }
-
-  clearStorage(): void {
-    if (typeof window !== 'undefined') {
-      localStorage.removeItem('authToken');
-      localStorage.removeItem('currentUser');
-    }
-  }
 }
 
 export const authService = new AuthService();

@@ -10,9 +10,7 @@ export interface StakeholderFormData {
   type: 'buyer' | 'seller' | 'lawyer' | 'agent';
   fullName: string;
   email: string;
-  phone: string;
-  company?: string;
-  role?: string;
+  phone?: string;
   idType?: string;
   idNumber?: string;
   licenseNumber?: string;

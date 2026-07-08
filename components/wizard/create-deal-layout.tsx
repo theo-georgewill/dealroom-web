@@ -31,7 +31,7 @@ export function CreateDealLayout({
 
       {/* Page Header */}
       <div>
-        <h1 className="text-2xl font-bold text-foreground">Create New Deal</h1>
+        <h1 className="text-2xl font-bold text-foreground">Create New Property Deal</h1>
         <p className="text-slate-600 text-sm mt-0.5">
           Set up the details of your real estate transaction.
         </p>

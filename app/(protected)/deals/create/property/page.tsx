@@ -252,6 +252,7 @@ function PropertyContent() {
           onBack={onBack}
           onNext={handleSubmit(onSubmit)}
           canProceed={true}
+          isLastStep={false}
         />
       </form>
     </CreateDealLayout>

@@ -1,17 +1,17 @@
 export interface User {
   id: string;
+  firstName: string;
+  lastName: string;
   email: string;
-  name: string;
-  avatar?: string;
-  role: 'admin' | 'user' | 'agent';
-  createdAt: string;
-  updatedAt: string;
 }
 
 export interface AuthResponse {
-  token: string;
-  refreshToken?: string;
-  user: User;
+  success: boolean;
+  message: string;
+  data: {
+    user: User;
+    accessToken: string;
+  };
 }
 
 // Re-export for convenience
@@ -23,9 +23,10 @@ export interface LoginRequest {
 }
 
 export interface RegisterRequest {
+  firstName: string;
+  lastName: string;
   email: string;
   password: string;
-  fullName: string;
   confirmPassword: string;
 }
 

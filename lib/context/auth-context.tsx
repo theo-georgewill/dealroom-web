@@ -12,32 +12,43 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   // Initialize from localStorage on mount
   useEffect(() => {
-    const storedUser = authService.getStoredUser();
-    if (storedUser) {
-      setUser(storedUser);
-    }
-    setIsLoading(false);
+    const initializeAuth = async () => {
+      setIsLoading(true);
+
+      try {
+        const currentUser = await authService.getCurrentUser();
+
+        if (currentUser) {
+          setUser(currentUser);
+        } else {
+          setUser(null);
+        }
+      } catch {
+        setUser(null);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    initializeAuth();
   }, []);
 
   const login = async (credentials: LoginRequest) => {
     setIsLoading(true);
+
     try {
-      const response = await authService.login(credentials);
-      authService.setStoredUser(response.user);
-      setUser(response.user);
-    } catch (error) {
+      const { user } = await authService.login(credentials);
+      setUser(user);
+    } finally {
       setIsLoading(false);
-      throw error;
     }
-    setIsLoading(false);
   };
 
   const register = async (data: RegisterRequest) => {
     setIsLoading(true);
     try {
-      const response = await authService.register(data);
-      authService.setStoredUser(response.user);
-      setUser(response.user);
+      const { user } = await authService.register(data);
+      setUser(user);
     } catch (error) {
       setIsLoading(false);
       throw error;
@@ -65,6 +76,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const logout = async () => {
     setIsLoading(true);
+
     try {
       await authService.logout();
       setUser(null);
@@ -76,12 +88,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const getCurrentUser = async () => {
     try {
       const currentUser = await authService.getCurrentUser();
-      if (currentUser) {
-        authService.setStoredUser(currentUser);
-        setUser(currentUser);
-      }
+
+      setUser(currentUser);
+
       return currentUser;
-    } catch (error) {
+    } catch {
+      setUser(null);
       return null;
     }
   };
