@@ -1,13 +1,31 @@
 import React from 'react';
-import { MOCK_DEALS, MOCK_NOTIFICATIONS, getDashboardMetrics } from '@/lib/data';
 import Link from 'next/link';
 import { ArrowUpRight, Activity, TrendingUp, DollarSign } from 'lucide-react';
 import { formatCurrency, formatDate } from '@/lib/utils';
+import { Deal, dealsService } from '@/lib/services/deals.service';
+import { cookies } from 'next/headers';
 
 export const metadata = {
   title: 'Dashboard - Deal Room',
   description: 'View your real estate transaction metrics and activity',
 };
+
+export function formatCompactCurrency(value: number) {
+  const abs = Math.abs(value);
+  if (abs >= 1_000_000_000_000) {
+    return `₦${(value / 1_000_000_000_000).toFixed(1)}T`;
+  }
+  if (abs >= 1_000_000_000) {
+    return `₦${(value / 1_000_000_000).toFixed(1)}B`;
+  }
+  if (abs >= 1_000_000) {
+    return `₦${(value / 1_000_000).toFixed(1)}M`;
+  }
+  if (abs >= 1_000) {
+    return `₦${(value / 1_000).toFixed(1)}K`;
+  }
+  return `₦${value.toLocaleString()}`;
+}
 
 function MetricCard({
   icon: Icon,
@@ -26,7 +44,7 @@ function MetricCard({
     <div className="flex items-start justify-between gap-4">
       <div className="flex-1">
         <p className="text-xs font-semibold text-slate-600 uppercase tracking-wide mb-2">{label}</p>
-        <p className="text-2xl font-bold text-foreground leading-tight">{value}</p>
+        <p className="text-xl lg:text-2xl font-bold leading-tight break-all">{value}</p>
         {subtext && <p className="text-xs text-slate-500 mt-2">{subtext}</p>}
       </div>
       <div className="p-2 bg-blue-50 rounded-lg text-primary flex-shrink-0">{Icon}</div>
@@ -55,7 +73,7 @@ function MetricCard({
 function RecentActivityCard({
   deal,
 }: {
-  deal: (typeof MOCK_DEALS)[0];
+  deal: Deal
 }) {
   const statusColors: Record<string, string> = {
     'In Progress': 'bg-blue-50 text-blue-700',
@@ -73,18 +91,18 @@ function RecentActivityCard({
         <div className="flex-1">
           <div className="flex items-center gap-3 mb-2">
             <img
-              src={deal.property.images[0]}
+              src={deal.property.images[0]?.key}
               alt={deal.property.name}
               className="w-10 h-10 rounded-lg object-cover"
             />
             <div>
-              <p className="font-medium text-foreground text-sm">{deal.name}</p>
+              <p className="font-medium text-foreground text-sm">{deal.property.name}</p>
               <p className="text-xs text-slate-500">{deal.property.address}</p>
             </div>
           </div>
         </div>
         <div className="text-right">
-          <p className="font-semibold text-foreground text-sm">{formatCurrency(deal.dealValue, 'NGN')}</p>
+          <p className="font-semibold text-foreground text-sm">{formatCurrency(deal.terms.dealValue, 'NGN')}</p>
           <span className={`inline-block px-3 py-1 rounded-full text-xs font-medium mt-2 ${statusColors[deal.status] || 'bg-slate-50 text-slate-700'}`}>
             {deal.progress}% complete
           </span>
@@ -94,10 +112,53 @@ function RecentActivityCard({
   );
 }
 
-export default function DashboardPage() {
-  const metrics = getDashboardMetrics();
-  const activeDeal = MOCK_DEALS[0];
-  const upcomingDeals = MOCK_DEALS.filter(d => ['In Progress', 'Due Diligence'].includes(d.status)).slice(0, 3);
+export default async function DashboardPage() {
+  const cookieStore = await cookies();
+
+  const cookieHeader = cookieStore
+    .getAll()
+    .map(c => `${c.name}=${c.value}`)
+    .join('; ');
+    
+  const { data: deals } = await dealsService.listDeals(
+    { limit: 100 },
+    {
+      headers: {
+        Cookie: cookieHeader,
+      },
+    }
+  );
+
+  const activeDeals = deals.filter((deal) =>
+    [
+      'PENDING_PARTICIPANTS',
+      'PENDING_FUNDING',
+      'FUNDED',
+      'DUE_DILIGENCE',
+      'RELEASE_REQUESTED',
+      'DISPUTED',
+    ].includes(deal.status)
+  );
+
+  const activeDeal = activeDeals[0] ?? null;
+
+  const metrics = {
+    totalDealValue: deals.reduce(
+      (sum, deal) => sum + Number(deal.terms.dealValue),
+      0
+    ),
+    totalDeals: deals.length,
+    activeDeals: activeDeals.length,
+    closingThisMonth: deals.filter((deal) => {
+      const closing = new Date(deal.terms.closingDate);
+      const now = new Date();
+
+      return (
+        closing.getMonth() === now.getMonth() &&
+        closing.getFullYear() === now.getFullYear()
+      );
+    }).length,
+  };
 
   return (
     <div className="space-y-5">
@@ -112,7 +173,7 @@ export default function DashboardPage() {
         <MetricCard
           icon={<DollarSign size={24} />}
           label="Total Deal Value"
-          value={formatCurrency(metrics.totalDealValue, 'NGN')}
+          value={formatCompactCurrency(metrics.totalDealValue)}
           subtext="All time"
           href="/deals"
         />
@@ -148,14 +209,14 @@ export default function DashboardPage() {
               <Link href={`/deals/${activeDeal.id}`}>
                 <div className="grid grid-cols-3 gap-4 p-5">
                   <img
-                    src={activeDeal.property.images[0]}
-                    alt={activeDeal.name}
+                    src={activeDeal.property.images[0]?.key}
+                    alt={activeDeal.property.name}
                     className="col-span-1 rounded-xl h-32 object-cover"
                   />
                   <div className="col-span-2">
                     <div className="flex items-start justify-between mb-2">
                       <div>
-                        <h3 className="text-lg font-bold text-foreground">{activeDeal.name}</h3>
+                        <h3 className="text-lg font-bold text-foreground">{activeDeal.property.name}</h3>
                         <p className="text-xs text-slate-500">{activeDeal.property.address}</p>
                       </div>
                       <span className="px-2 py-1 bg-blue-50 text-blue-700 rounded-full text-xs font-semibold whitespace-nowrap">
@@ -165,15 +226,15 @@ export default function DashboardPage() {
                     <div className="space-y-2 text-xs mb-3">
                       <div className="flex justify-between">
                         <span className="text-slate-600">Deal Value</span>
-                        <span className="font-semibold text-foreground">{formatCurrency(activeDeal.dealValue, 'NGN')}</span>
+                        <span className="font-semibold text-foreground">{formatCurrency(activeDeal.terms.dealValue, 'NGN')}</span>
                       </div>
                       <div className="flex justify-between">
                         <span className="text-slate-600">Closing</span>
-                        <span className="font-semibold text-foreground">{formatDate(activeDeal.closingDate)}</span>
+                        <span className="font-semibold text-foreground">{formatDate(activeDeal.terms.closingDate)}</span>
                       </div>
                       <div className="flex justify-between">
                         <span className="text-slate-600">Parties</span>
-                        <span className="font-semibold text-foreground">{activeDeal.parties.length}</span>
+                        <span className="font-semibold text-foreground">{activeDeal.participants.length}</span>
                       </div>
                     </div>
                     {/* Progress Bar */}
@@ -198,7 +259,7 @@ export default function DashboardPage() {
               </Link>
             </div>
             <div className="space-y-2">
-              {upcomingDeals.map((deal) => (
+              {activeDeals.map((deal) => (
                 <RecentActivityCard key={deal.id} deal={deal} />
               ))}
             </div>
@@ -218,7 +279,7 @@ export default function DashboardPage() {
                 </div>
                 <div className="pt-3 border-t border-slate-200">
                   <p className="text-xs text-slate-600 mb-1.5 font-medium">Provider</p>
-                  <p className="text-sm font-semibold text-foreground">{activeDeal.escrow.provider}</p>
+                  <p className="text-sm font-semibold text-foreground">Nomba</p>
                 </div>
                 <div>
                   <p className="text-xs text-slate-600 mb-1.5 font-medium">Status</p>
@@ -239,17 +300,17 @@ export default function DashboardPage() {
             <div className="space-y-3">
               <div>
                 <p className="text-xs text-slate-600 mb-1 font-medium">Documents</p>
-                <p className="text-xl font-bold text-foreground">{activeDeal?.documents.length || 0}</p>
+                <p className="text-xl font-bold text-foreground">0</p>
               </div>
               <div>
                 <p className="text-xs text-slate-600 mb-1 font-medium">Tasks</p>
                 <p className="text-xl font-bold text-foreground">
-                  {activeDeal?.checklists.reduce((sum, c) => sum + c.items.length, 0) || 0}
+                  0
                 </p>
               </div>
               <div>
                 <p className="text-xs text-slate-600 mb-1 font-medium">Participants</p>
-                <p className="text-xl font-bold text-foreground">{activeDeal?.parties.length || 0}</p>
+                <p className="text-xl font-bold text-foreground">{activeDeal?.participants.length || 0}</p>
               </div>
             </div>
           </div>

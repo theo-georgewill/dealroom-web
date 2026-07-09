@@ -1,4 +1,5 @@
 import { apiClient } from '@/lib/api-client';
+import { Axios, AxiosRequestConfig } from 'axios';
 
 interface ApiResponse<T,  M = undefined> {
   success: boolean;
@@ -303,11 +304,13 @@ class DealsService {
 
   async listDeals(
     params: ListDealsParams = {},
+    config?: AxiosRequestConfig,
   ): Promise<PaginatedDealsResponse> {
     const response = await apiClient.get<
       ApiResponse<Deal[], PaginatedDealsResponse['meta']>
     >('/deals', {
       params,
+      ...config,
     });
 
     return {
