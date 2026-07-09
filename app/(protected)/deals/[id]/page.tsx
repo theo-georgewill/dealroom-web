@@ -1,11 +1,13 @@
 'use client';
 
-import React, { useState } from 'react';
-import { MOCK_DEALS } from '@/lib/data';
+import React, { useState, useEffect } from 'react';
+import { dealsService, Deal } from '@/lib/services/deals.service';
 import { X, FileText, Users, CheckSquare, BarChart3, MessageSquare, ArrowRight } from 'lucide-react';
 import { formatCurrency, formatDate, getTimeAgo } from '@/lib/utils';
 import { DealActivity, ChecklistItem } from '@/lib/types';
 import Link from 'next/link';
+import { useParams } from 'next/navigation';
+
 
 const TAB_OPTIONS = [
   { value: 'overview', label: 'Overview', icon: BarChart3 },
@@ -16,10 +18,68 @@ const TAB_OPTIONS = [
   { value: 'activity', label: 'Activity', icon: MessageSquare },
 ];
 
-export default function DealDetailPage({ params }: { params: { id: string } }) {
-  const deal = MOCK_DEALS.find(d => d.id === params.id);
+function getDealProgress(status: Deal['status']) {
+  switch (status) {
+    case 'DRAFT':
+      return 10;
+
+    case 'PENDING_PARTICIPANTS':
+      return 20;
+
+    case 'PENDING_FUNDING':
+      return 40;
+
+    case 'FUNDED':
+      return 60;
+
+    case 'DUE_DILIGENCE':
+      return 75;
+
+    case 'RELEASE_REQUESTED':
+      return 90;
+
+    case 'COMPLETED':
+      return 100;
+
+    case 'CANCELLED':
+      return 0;
+
+    default:
+      return 0;
+  }
+}
+export default function DealDetailPage() {
+  const params = useParams<{ id: string }>();
+  const [deal, setDeal] = useState<Deal | null>(null);
+  const [loading, setLoading] = useState(true);
+
   const [activeTab, setActiveTab] = useState('overview');
   const [isDrawerOpen, setIsDrawerOpen] = useState(true);
+
+  useEffect(() => {
+    async function loadDeal() {
+      try {
+        setLoading(true);
+
+        const response = await dealsService.getDeal(params.id);
+
+        setDeal(response);
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    loadDeal();
+  }, [params.id]);
+
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-96">
+        Loading...
+      </div>
+    );
+  }
 
   if (!deal) {
     return (
@@ -56,14 +116,14 @@ export default function DealDetailPage({ params }: { params: { id: string } }) {
         <div className="bg-white border border-border rounded-lg overflow-hidden mb-6">
           <div className="grid grid-cols-3 gap-6 p-6">
             <img
-              src={deal.property.images[0]}
+              src={deal.property.images[0]?.key ? deal.property.images[0].key : '/images/property-placeholder.jpg'}
               alt={deal.property.name}
               className="col-span-1 rounded-lg h-48 object-cover"
             />
             <div className="col-span-2">
               <div className="flex items-start justify-between mb-4">
                 <div>
-                  <h2 className="text-2xl font-bold text-foreground">{deal.name}</h2>
+                  <h2 className="text-2xl font-bold text-foreground">{deal.title}</h2>
                   <p className="text-muted-foreground mt-1">{deal.property.address}</p>
                 </div>
                 <span className={`px-3 py-1 rounded-full text-sm font-semibold ${statusColors[deal.status]}`}>
@@ -78,11 +138,11 @@ export default function DealDetailPage({ params }: { params: { id: string } }) {
                 </div>
                 <div>
                   <p className="text-xs text-muted-foreground mb-1">Deal Value</p>
-                  <p className="font-semibold text-foreground">{formatCurrency(deal.dealValue, 'NGN')}</p>
+                  <p className="font-semibold text-foreground">{formatCurrency(deal.terms.dealValue, 'NGN')}</p>
                 </div>
                 <div>
                   <p className="text-xs text-muted-foreground mb-1">Closing Date</p>
-                  <p className="font-semibold text-foreground">{formatDate(deal.closingDate)}</p>
+                  <p className="font-semibold text-foreground">{formatDate(deal.terms.closingDate)}</p>
                 </div>
               </div>
 
@@ -90,12 +150,12 @@ export default function DealDetailPage({ params }: { params: { id: string } }) {
               <div>
                 <div className="flex items-center justify-between mb-2">
                   <p className="text-xs text-muted-foreground">Overall Progress</p>
-                  <p className="text-sm font-semibold text-foreground">{deal.progress}%</p>
+                  <p className="text-sm font-semibold text-foreground">{getDealProgress(deal.status)}%</p>
                 </div>
                 <div className="w-full bg-secondary rounded-full h-3 overflow-hidden">
                   <div
                     className="bg-primary h-full transition-all"
-                    style={{ width: `${deal.progress}%` }}
+                    style={{ width: `${getDealProgress(deal.status)}%` }}
                   />
                 </div>
               </div>
@@ -125,11 +185,11 @@ export default function DealDetailPage({ params }: { params: { id: string } }) {
           {/* Tab Content */}
           <div className="p-6">
             {activeTab === 'overview' && <OverviewTab deal={deal} />}
-            {activeTab === 'documents' && <DocumentsTab deal={deal} />}
+            {activeTab === 'documents' && <DocumentsTab />}
             {activeTab === 'stakeholders' && <StakeholdersTab deal={deal} />}
-            {activeTab === 'checklist' && <ChecklistTab deal={deal} />}
+            {activeTab === 'checklist' && <ChecklistTab  />}
             {activeTab === 'escrow' && <EscrowTab deal={deal} />}
-            {activeTab === 'activity' && <ActivityTab deal={deal} />}
+            {activeTab === 'activity' && <ActivityTab />}
           </div>
         </div>
       </div>
@@ -149,11 +209,14 @@ export default function DealDetailPage({ params }: { params: { id: string } }) {
           {/* Property Summary */}
           <div className="mb-6">
             <img
-              src={deal.property.images[0]}
+              src={
+                deal.property.images[0]?.key ??
+                '/images/property-placeholder.jpg'
+              }
               alt={deal.property.name}
               className="w-full h-32 rounded-lg object-cover mb-3"
             />
-            <h4 className="font-semibold text-foreground">{deal.name}</h4>
+            <h4 className="font-semibold text-foreground">{deal.title}</h4>
             <p className="text-sm text-muted-foreground">{deal.property.address}</p>
           </div>
 
@@ -161,27 +224,27 @@ export default function DealDetailPage({ params }: { params: { id: string } }) {
           <div className="space-y-4 mb-6 pb-6 border-b border-border">
             <div className="flex items-center justify-between">
               <span className="text-sm text-muted-foreground">Deal Type</span>
-              <span className="font-medium text-foreground">{deal.dealType}</span>
+              <span className="font-medium text-foreground">{deal.terms.dealType}</span>
             </div>
             <div className="flex items-center justify-between">
               <span className="text-sm text-muted-foreground">Deal Value</span>
-              <span className="font-medium text-foreground">{formatCurrency(deal.dealValue, 'NGN')}</span>
+              <span className="font-medium text-foreground">{formatCurrency(deal.terms.dealValue, 'NGN')}</span>
             </div>
             <div className="flex items-center justify-between">
               <span className="text-sm text-muted-foreground">Currency</span>
-              <span className="font-medium text-foreground">{deal.currency}</span>
+              <span className="font-medium text-foreground">{deal.terms.currency}</span>
             </div>
             <div className="flex items-center justify-between">
               <span className="text-sm text-muted-foreground">Buyer</span>
-              <span className="font-medium text-foreground">{deal.parties.find(p => p.role === 'Buyer')?.name || 'N/A'}</span>
+              <span className="font-medium text-foreground">{deal.participants.find(p => p.role === 'BUYER')?.user.firstName+" "+deal.participants.find(p => p.role === 'SELLER')?.user.lastName || 'N/A'}</span>
             </div>
             <div className="flex items-center justify-between">
               <span className="text-sm text-muted-foreground">Seller</span>
-              <span className="font-medium text-foreground">{deal.parties.find(p => p.role === 'Seller')?.name || 'N/A'}</span>
+              <span className="font-medium text-foreground">{deal.participants.find(p => p.role === 'SELLER')?.user.firstName+" "+deal.participants.find(p => p.role === 'SELLER')?.user.lastName   || 'N/A'}</span>
             </div>
             <div className="flex items-center justify-between">
               <span className="text-sm text-muted-foreground">Closing Date</span>
-              <span className="font-medium text-foreground">{formatDate(deal.closingDate)}</span>
+              <span className="font-medium text-foreground">{formatDate(deal.terms.closingDate)}</span>
             </div>
           </div>
 
@@ -194,7 +257,7 @@ export default function DealDetailPage({ params }: { params: { id: string } }) {
                 <p className="text-sm font-semibold text-green-900">Funded</p>
               </div>
               <p className="text-xs text-green-700 mb-3">Balance: {formatCurrency(deal.escrow.amount, 'NGN')}</p>
-              <p className="text-xs text-green-700">Provider: {deal.escrow.provider}</p>
+              <p className="text-xs text-green-700">Provider: Nomba</p>
             </div>
           </div>
 
@@ -226,85 +289,70 @@ export default function DealDetailPage({ params }: { params: { id: string } }) {
 }
 
 // Tab Components
-function OverviewTab({ deal }: { deal: (typeof MOCK_DEALS)[0] }) {
+function OverviewTab({ deal }: { deal: Deal }) {
   return (
     <div className="space-y-6">
       <div>
         <h4 className="font-semibold text-foreground mb-2">Deal Progress</h4>
         <div className="flex items-center justify-between mb-2">
           <p className="text-sm text-muted-foreground">Overall</p>
-          <p className="text-sm font-semibold text-foreground">{deal.progress}%</p>
+          <p className="text-sm font-semibold text-foreground">{getDealProgress(deal.status)}%</p>
         </div>
         <div className="w-full bg-secondary rounded-full h-3">
-          <div className="bg-primary h-full rounded-full" style={{ width: `${deal.progress}%` }} />
+          <div className="bg-primary h-full rounded-full" style={{ width: `${getDealProgress(deal.status)}%` }} />
         </div>
       </div>
 
       <div className="grid grid-cols-2 gap-4">
         <div className="bg-secondary rounded-lg p-4">
           <p className="text-xs text-muted-foreground mb-1">Deal Value</p>
-          <p className="text-lg font-bold text-foreground">{formatCurrency(deal.dealValue, 'NGN')}</p>
+          <p className="text-lg font-bold text-foreground">{formatCurrency(deal.terms.dealValue, 'NGN')}</p>
         </div>
         <div className="bg-secondary rounded-lg p-4">
           <p className="text-xs text-muted-foreground mb-1">Earnest Money</p>
-          <p className="text-lg font-bold text-foreground">{formatCurrency(deal.earnestMoney || 0, 'NGN')}</p>
+          <p className="text-lg font-bold text-foreground">{formatCurrency(Number(deal.terms.earnestMoney || 0), 'NGN')}</p>
         </div>
         <div className="bg-secondary rounded-lg p-4">
           <p className="text-xs text-muted-foreground mb-1">Closing Date</p>
-          <p className="text-lg font-bold text-foreground">{formatDate(deal.closingDate)}</p>
+          <p className="text-lg font-bold text-foreground">{formatDate(deal.terms.closingDate)}</p>
         </div>
         <div className="bg-secondary rounded-lg p-4">
           <p className="text-xs text-muted-foreground mb-1">Parties</p>
-          <p className="text-lg font-bold text-foreground">{deal.parties.length}</p>
+          <p className="text-lg font-bold text-foreground">{deal.participants.length}</p>
         </div>
       </div>
 
-      {deal.description && (
+      {deal.property.description && (
         <div>
           <h4 className="font-semibold text-foreground mb-2">Description</h4>
-          <p className="text-sm text-muted-foreground">{deal.description}</p>
+          <p className="text-sm text-muted-foreground">{deal.property.description}</p>
         </div>
       )}
     </div>
   );
 }
 
-function DocumentsTab({ deal }: { deal: (typeof MOCK_DEALS)[0] }) {
+function DocumentsTab() {
   return (
-    <div className="space-y-4">
-      {deal.documents.length === 0 ? (
-        <p className="text-center py-8 text-muted-foreground">No documents yet</p>
-      ) : (
-        deal.documents.map((doc) => (
-          <div key={doc.id} className="flex items-center justify-between p-3 bg-secondary rounded-lg">
-            <div className="flex items-center gap-3">
-              <FileText size={20} className="text-primary" />
-              <div>
-                <p className="font-medium text-foreground text-sm">{doc.name}</p>
-                <p className="text-xs text-muted-foreground">Uploaded {getTimeAgo(doc.uploadedDate)}</p>
-              </div>
-            </div>
-            <span className="text-xs bg-green-100 text-green-700 px-2 py-1 rounded">{doc.status}</span>
-          </div>
-        ))
-      )}
+    <div className="text-center py-12 text-muted-foreground">
+      Documents coming soon.
     </div>
   );
 }
 
-function StakeholdersTab({ deal }: { deal: (typeof MOCK_DEALS)[0] }) {
+function StakeholdersTab({ deal }: { deal: Deal }) {
   return (
     <div className="space-y-4">
-      {deal.parties.length === 0 ? (
+      {deal.participants.length === 0 ? (
         <p className="text-center py-8 text-muted-foreground">No stakeholders</p>
       ) : (
-        deal.parties.map((party) => (
-          <div key={party.id} className="flex items-center justify-between p-3 bg-secondary rounded-lg">
+        deal.participants.map((participant) => (
+          <div key={participant.id} className="flex items-center justify-between p-3 bg-secondary rounded-lg">
             <div>
-              <p className="font-medium text-foreground text-sm">{party.name}</p>
-              <p className="text-xs text-muted-foreground">{party.role}</p>
+              <p className="font-medium text-foreground text-sm">{`${participant.user.firstName} ${participant.user.lastName}`}</p>
+              <p className="text-xs text-muted-foreground">{participant.role}</p>
             </div>
-            <span className="text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded">{party.status}</span>
+            <span className="text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded">{participant.status}</span>
           </div>
         ))
       )}
@@ -312,38 +360,21 @@ function StakeholdersTab({ deal }: { deal: (typeof MOCK_DEALS)[0] }) {
   );
 }
 
-function ChecklistTab({ deal }: { deal: (typeof MOCK_DEALS)[0] }) {
+function ChecklistTab() {
   return (
-    <div className="space-y-6">
-      {deal.checklists.map((checklist) => (
-        <div key={checklist.id}>
-          <h4 className="font-semibold text-foreground mb-3">{checklist.section}</h4>
-          <div className="space-y-2">
-            {checklist.items.map((item: ChecklistItem) => (
-              <div key={item.id} className="flex items-center gap-3 p-3 bg-secondary rounded-lg">
-                <input type="checkbox" checked={item.completed} readOnly className="w-4 h-4" />
-                <div className="flex-1">
-                  <p className={`text-sm ${item.completed ? 'line-through text-muted-foreground' : 'text-foreground'}`}>
-                    {item.title}
-                  </p>
-                </div>
-                <span className="text-xs bg-gray-100 text-gray-700 px-2 py-1 rounded">{item.status}</span>
-              </div>
-            ))}
-          </div>
-        </div>
-      ))}
+    <div className="text-center py-12 text-muted-foreground">
+      Checklist coming soon.
     </div>
   );
 }
 
-function EscrowTab({ deal }: { deal: (typeof MOCK_DEALS)[0] }) {
+function EscrowTab({ deal }: { deal: Deal }) {
   return (
     <div className="space-y-4">
       <div className="bg-green-50 border border-green-200 rounded-lg p-4">
         <h4 className="font-semibold text-green-900 mb-3">Escrow Balance</h4>
         <p className="text-2xl font-bold text-green-700">{formatCurrency(deal.escrow.amount, 'NGN')}</p>
-        <p className="text-sm text-green-700 mt-2">Provider: {deal.escrow.provider}</p>
+        <p className="text-sm text-green-700 mt-2">Provider: Nomba</p>
       </div>
 
       <div>
@@ -351,8 +382,8 @@ function EscrowTab({ deal }: { deal: (typeof MOCK_DEALS)[0] }) {
         <div className="space-y-2">
           {deal.escrow.releaseConditions.map((cond) => (
             <div key={cond.id} className="flex items-center gap-3 p-3 bg-secondary rounded-lg">
-              <input type="checkbox" checked={cond.completed} readOnly className="w-4 h-4" />
-              <p className={`text-sm ${cond.completed ? 'line-through text-muted-foreground' : 'text-foreground'}`}>
+              <input type="checkbox" checked={false} readOnly className="w-4 h-4" />
+              <p className={`text-sm ${false ? 'line-through text-muted-foreground' : 'text-foreground'}`}>
                 {cond.description}
               </p>
             </div>
@@ -363,39 +394,19 @@ function EscrowTab({ deal }: { deal: (typeof MOCK_DEALS)[0] }) {
       <div>
         <h4 className="font-semibold text-foreground mb-3">Recent Transactions</h4>
         <div className="space-y-2">
-          {deal.escrow.recentTransactions.map((txn) => (
-            <div key={txn.id} className="flex items-center justify-between p-3 bg-secondary rounded-lg text-sm">
-              <div>
-                <p className="font-medium text-foreground">{txn.type}</p>
-                <p className="text-xs text-muted-foreground">{txn.description}</p>
-              </div>
-              <p className="font-semibold text-foreground">{formatCurrency(txn.amount, 'NGN')}</p>
-            </div>
-          ))}
+          <div className="text-center py-8 text-muted-foreground">
+            No transactions yet.
+          </div>
         </div>
       </div>
     </div>
   );
 }
 
-function ActivityTab({ deal }: { deal: (typeof MOCK_DEALS)[0] }) {
+function ActivityTab() {
   return (
-    <div className="space-y-4">
-      {deal.activities.length === 0 ? (
-        <p className="text-center py-8 text-muted-foreground">No activity yet</p>
-      ) : (
-        deal.activities.map((activity: DealActivity) => (
-          <div key={activity.id} className="flex gap-4 p-4 bg-secondary rounded-lg">
-            <div className="w-8 h-8 rounded-full bg-primary/10 flex-shrink-0" />
-            <div className="flex-1">
-              <p className="text-sm font-medium text-foreground">
-                {activity.actor.name} {activity.description.split(' ').slice(1).join(' ')}
-              </p>
-              <p className="text-xs text-muted-foreground mt-1">{getTimeAgo(activity.timestamp)}</p>
-            </div>
-          </div>
-        ))
-      )}
+    <div className="text-center py-12 text-muted-foreground">
+      No activity yet.
     </div>
   );
 }

@@ -1,17 +1,112 @@
 import { apiClient } from '@/lib/api-client';
 
-interface ApiResponse<T> {
+interface ApiResponse<T,  M = undefined> {
   success: boolean;
   message: string;
   data: T;
+  meta?: M;
 }
+
+export type DealStatus =
+  | 'DRAFT'
+  | 'PENDING_PARTICIPANTS'
+  | 'PENDING_FUNDING'
+  | 'FUNDED'
+  | 'DUE_DILIGENCE'
+  | 'DISPUTED'
+  | 'RELEASE_REQUESTED'
+  | 'COMPLETED'
+  | 'CANCELLED';
 
 export interface Deal {
   id: string;
+  reference: string;
   title: string;
-  description?: string;
-  status: 'draft' | 'active' | 'closed' | 'cancelled';
-  value: number;
+  status: DealStatus;
+  progress: number;
+
+  creator: {
+    id: string;
+    firstName: string;
+    lastName: string;
+    email: string;
+    avatar?: string | null;
+  };
+
+  property: {
+    name: string;
+    type: string;
+    address: string;
+    city: string;
+    state: string;
+    country: string;
+    description?: string;
+    images: {
+      key: string;
+    }[];
+  };
+
+  terms: {
+    dealType:
+      | 'PURCHASE'
+      | 'LEASE'
+      | 'SALE'
+      | 'EXCHANGE';
+    currency: string;
+    dealValue: number;
+    earnestMoney?: number;
+    closingDate: string;
+    longStopDate?: string;
+    paymentStructure:
+      | 'SINGLE_PAYMENT'
+      | 'MILESTONE_PAYMENTS'
+      | 'CUSTOM_STRUCTURE';
+  };
+
+  escrow: {
+    id: string;
+    amount: number;
+    currency: string;
+    fundingSource:
+      | 'BUYER_DEPOSIT'
+      | 'SPLIT_DEPOSIT'
+      | 'THIRD_PARTY';
+    holdingPeriod: number;
+    releaseConditions: {
+      id: string;
+      description: string;
+      sortOrder: number;
+    }[];
+  };
+
+  participants: {
+    id: string;
+    role:
+      | 'BUYER'
+      | 'SELLER'
+      | 'LAWYER'
+      | 'AGENT';
+    status: string;
+    joinedAt: string | null;
+
+    user: {
+      id: string;
+      firstName: string;
+      lastName: string;
+      email: string;
+      avatar?: string | null;
+    };
+  }[];
+
+  invitations: {
+    id: string;
+    email: string;
+    role: string;
+    status: string;
+    expiresAt: string;
+    createdAt: string;
+  }[];
+
   createdAt: string;
   updatedAt: string;
 }
@@ -74,10 +169,37 @@ export interface UpdateDealRequest {
   escrow?: Partial<CreateDealRequest['escrow']>;
 }
 
+export interface ListDealsParams {
+  page?: number;
+  limit?: number;
+  search?: string;
+  scope?: string;
+  status?: string;
+  sortBy?: 'createdAt' | 'updatedAt' | 'title';
+  sortOrder?: 'asc' | 'desc';
+}
+
+export interface PaginatedDealsResponse {
+  data: Deal[];
+  meta: {
+    page: number;
+    limit: number;
+    total: number;
+    totalPages: number;
+    hasNextPage: boolean;
+    hasPreviousPage: boolean;
+  };
+}
+
 class DealsService {
   async getDeal(id: string): Promise<Deal> {
-    const response = await apiClient.get<Deal>(`/deals/${id}`);
-    return response.data;
+    const response = await apiClient.get<ApiResponse<Deal>>(
+      `/deals/${id}`,
+    );
+
+  console.log(response.data);
+
+    return response.data.data;
   }
 
   async createDeal(data: CreateDealRequest): Promise<CreateDealResponse> {
@@ -167,24 +289,31 @@ class DealsService {
   }
 
 
-  async updateDeal(id: string, data: UpdateDealRequest): Promise<Deal> {
-    const response = await apiClient.patch<Deal>(`/deals/${id}`, data);
-    return response.data;
-  }
+  async updateDeal(
+    id: string,
+    data: UpdateDealRequest,
+  ): Promise<Deal> {
+    const response = await apiClient.patch<ApiResponse<Deal>>(
+      `/deals/${id}`,
+      data,
+    );
 
-  async deleteDeal(id: string): Promise<void> {
-    await apiClient.delete(`/deals/${id}`);
+    return response.data.data;
   }
 
   async listDeals(
-    page = 1,
-    limit = 10,
-    status?: Deal['status']
-  ): Promise<{ deals: Deal[]; total: number }> {
-    const response = await apiClient.get<{ deals: Deal[]; total: number }>('/deals', {
-      params: { page, limit, status },
+    params: ListDealsParams = {},
+  ): Promise<PaginatedDealsResponse> {
+    const response = await apiClient.get<
+      ApiResponse<Deal[], PaginatedDealsResponse['meta']>
+    >('/deals', {
+      params,
     });
-    return response.data;
+
+    return {
+      data: response.data.data,
+      meta: response.data.meta!,
+    };
   }
 }
 

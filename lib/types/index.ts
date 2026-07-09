@@ -1,4 +1,5 @@
 // Auth Types
+import type { Deal } from '@/lib/services/deals.service';
 export interface AuthUser {
   id: string;
   email: string;
@@ -46,7 +47,12 @@ export interface AuthContextType {
 }
 
 // User and Authentication Types
-export type UserRole = 'Buyer' | 'Seller' | 'Lawyer' | 'Agent' | 'Admin' | 'Escrow Provider';
+export type UserRole =
+  | 'BUYER'
+  | 'SELLER'
+  | 'LAWYER'
+  | 'AGENT'
+  | 'ADMIN';
 
 export interface User {
   id: string;
@@ -60,7 +66,12 @@ export interface User {
 }
 
 // Property Types
-export type PropertyType = 'Residential' | 'Commercial' | 'Land' | 'Industrial' | 'Mixed-Use';
+export type PropertyType =
+  | 'RESIDENTIAL'
+  | 'COMMERCIAL'
+  | 'LAND'
+  | 'INDUSTRIAL'
+  | 'MIXED_USE';
 
 export interface Property {
   id: string;
@@ -76,7 +87,11 @@ export interface Property {
 }
 
 // Party Types
-export type PartyRole = 'Buyer' | 'Seller' | 'Lawyer' | 'Agent';
+export type PartyRole =
+  | 'BUYER'
+  | 'SELLER'
+  | 'LAWYER'
+  | 'AGENT';
 
 export interface Party {
   id: string;
@@ -91,8 +106,22 @@ export interface Party {
 }
 
 // Deal Types
-export type DealType = 'Purchase' | 'Land Purchase' | 'Rental' | 'Lease';
-export type DealStatus = 'Draft' | 'In Progress' | 'Due Diligence' | 'Document Review' | 'On Hold' | 'Closed' | 'Cancelled' | 'Terminated';
+export type DealType =
+  | 'Purchase'
+  | 'Land Purchase'
+  | 'Rental'
+  | 'Lease';
+
+export type DealStatus =
+  | 'DRAFT'
+  | 'PENDING_PARTICIPANTS'
+  | 'PENDING_FUNDING'
+  | 'FUNDED'
+  | 'DUE_DILIGENCE'
+  | 'DISPUTED'
+  | 'RELEASE_REQUESTED'
+  | 'COMPLETED'
+  | 'CANCELLED';
 
 export interface EscrowCondition {
   id: string;
@@ -161,35 +190,6 @@ export interface DealActivity {
     id: string;
     name: string;
   };
-}
-
-export interface Deal {
-  id: string;
-  name: string;
-  property: Property;
-  dealType: DealType;
-  dealValue: number;
-  currency: string;
-  earnestMoney?: number;
-  closingDate: string;
-  longStopDate?: string;
-  paymentStructure: 'Single Payment' | 'Milestone Payments' | 'Custom Structure';
-  contingencies?: string[];
-  description?: string;
-  status: DealStatus;
-  progress: number;
-  owner: User;
-  createdDate: string;
-  lastUpdated: string;
-  parties: Party[];
-  escrow: EscrowData;
-  documents: DealDocument[];
-  checklists: DealChecklist[];
-  activities: DealActivity[];
-  participants: {
-    user: User;
-    role: 'Owner' | 'Contributor' | 'Viewer';
-  }[];
 }
 
 // Notification Types
