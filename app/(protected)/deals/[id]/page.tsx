@@ -4,9 +4,16 @@ import React, { useState, useEffect } from 'react';
 import { dealsService, Deal } from '@/lib/services/deals.service';
 import { X, FileText, Users, CheckSquare, BarChart3, MessageSquare, ArrowRight } from 'lucide-react';
 import { formatCurrency, formatDate, getTimeAgo } from '@/lib/utils';
+import { getDealProgress } from '@/components/deals/utils';
 import { DealActivity, ChecklistItem } from '@/lib/types';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
+import { OverviewTab } from '@/components/deals/tabs/OverviewTab'
+import { DocumentsTab } from '@/components/deals/tabs/DocumentsTab';
+import { StakeholdersTab } from '@/components/deals/tabs/StakeholdersTab';
+import { ChecklistTab } from '@/components/deals/tabs/ChecklistTab';
+import { EscrowTab } from '@/components/deals/tabs/EscrowTab';
+import { ActivityTab } from '@/components/deals/tabs/ActivityTab';
 
 
 const TAB_OPTIONS = [
@@ -18,36 +25,7 @@ const TAB_OPTIONS = [
   { value: 'activity', label: 'Activity', icon: MessageSquare },
 ];
 
-function getDealProgress(status: Deal['status']) {
-  switch (status) {
-    case 'DRAFT':
-      return 10;
 
-    case 'PENDING_PARTICIPANTS':
-      return 20;
-
-    case 'PENDING_FUNDING':
-      return 40;
-
-    case 'FUNDED':
-      return 60;
-
-    case 'DUE_DILIGENCE':
-      return 75;
-
-    case 'RELEASE_REQUESTED':
-      return 90;
-
-    case 'COMPLETED':
-      return 100;
-
-    case 'CANCELLED':
-      return 0;
-
-    default:
-      return 0;
-  }
-}
 export default function DealDetailPage() {
   const params = useParams<{ id: string }>();
   const [deal, setDeal] = useState<Deal | null>(null);
@@ -60,9 +38,7 @@ export default function DealDetailPage() {
     async function loadDeal() {
       try {
         setLoading(true);
-
         const response = await dealsService.getDeal(params.id);
-
         setDeal(response);
       } finally {
         setLoading(false);
@@ -165,7 +141,6 @@ export default function DealDetailPage() {
 
         {/* Tab Content */}
         <div className="bg-white border border-border rounded-lg">
-          {/* Tabs */}
           <div className="border-b border-border flex gap-8 px-6 overflow-x-auto">
             {TAB_OPTIONS.map((tab) => (
               <button
@@ -181,8 +156,6 @@ export default function DealDetailPage() {
               </button>
             ))}
           </div>
-
-          {/* Tab Content */}
           <div className="p-6">
             {activeTab === 'overview' && <OverviewTab deal={deal} />}
             {activeTab === 'documents' && <DocumentsTab />}
@@ -289,124 +262,12 @@ export default function DealDetailPage() {
 }
 
 // Tab Components
-function OverviewTab({ deal }: { deal: Deal }) {
-  return (
-    <div className="space-y-6">
-      <div>
-        <h4 className="font-semibold text-foreground mb-2">Deal Progress</h4>
-        <div className="flex items-center justify-between mb-2">
-          <p className="text-sm text-muted-foreground">Overall</p>
-          <p className="text-sm font-semibold text-foreground">{getDealProgress(deal.status)}%</p>
-        </div>
-        <div className="w-full bg-secondary rounded-full h-3">
-          <div className="bg-primary h-full rounded-full" style={{ width: `${getDealProgress(deal.status)}%` }} />
-        </div>
-      </div>
 
-      <div className="grid grid-cols-2 gap-4">
-        <div className="bg-secondary rounded-lg p-4">
-          <p className="text-xs text-muted-foreground mb-1">Deal Value</p>
-          <p className="text-lg font-bold text-foreground">{formatCurrency(deal.terms.dealValue, 'NGN')}</p>
-        </div>
-        <div className="bg-secondary rounded-lg p-4">
-          <p className="text-xs text-muted-foreground mb-1">Earnest Money</p>
-          <p className="text-lg font-bold text-foreground">{formatCurrency(Number(deal.terms.earnestMoney || 0), 'NGN')}</p>
-        </div>
-        <div className="bg-secondary rounded-lg p-4">
-          <p className="text-xs text-muted-foreground mb-1">Closing Date</p>
-          <p className="text-lg font-bold text-foreground">{formatDate(deal.terms.closingDate)}</p>
-        </div>
-        <div className="bg-secondary rounded-lg p-4">
-          <p className="text-xs text-muted-foreground mb-1">Parties</p>
-          <p className="text-lg font-bold text-foreground">{deal.participants.length}</p>
-        </div>
-      </div>
 
-      {deal.property.description && (
-        <div>
-          <h4 className="font-semibold text-foreground mb-2">Description</h4>
-          <p className="text-sm text-muted-foreground">{deal.property.description}</p>
-        </div>
-      )}
-    </div>
-  );
-}
 
-function DocumentsTab() {
-  return (
-    <div className="text-center py-12 text-muted-foreground">
-      Documents coming soon.
-    </div>
-  );
-}
 
-function StakeholdersTab({ deal }: { deal: Deal }) {
-  return (
-    <div className="space-y-4">
-      {deal.participants.length === 0 ? (
-        <p className="text-center py-8 text-muted-foreground">No stakeholders</p>
-      ) : (
-        deal.participants.map((participant) => (
-          <div key={participant.id} className="flex items-center justify-between p-3 bg-secondary rounded-lg">
-            <div>
-              <p className="font-medium text-foreground text-sm">{`${participant.user.firstName} ${participant.user.lastName}`}</p>
-              <p className="text-xs text-muted-foreground">{participant.role}</p>
-            </div>
-            <span className="text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded">{participant.status}</span>
-          </div>
-        ))
-      )}
-    </div>
-  );
-}
 
-function ChecklistTab() {
-  return (
-    <div className="text-center py-12 text-muted-foreground">
-      Checklist coming soon.
-    </div>
-  );
-}
 
-function EscrowTab({ deal }: { deal: Deal }) {
-  return (
-    <div className="space-y-4">
-      <div className="bg-green-50 border border-green-200 rounded-lg p-4">
-        <h4 className="font-semibold text-green-900 mb-3">Escrow Balance</h4>
-        <p className="text-2xl font-bold text-green-700">{formatCurrency(deal.escrow.amount, 'NGN')}</p>
-        <p className="text-sm text-green-700 mt-2">Provider: Nomba</p>
-      </div>
 
-      <div>
-        <h4 className="font-semibold text-foreground mb-3">Release Conditions</h4>
-        <div className="space-y-2">
-          {deal.escrow.releaseConditions.map((cond) => (
-            <div key={cond.id} className="flex items-center gap-3 p-3 bg-secondary rounded-lg">
-              <input type="checkbox" checked={false} readOnly className="w-4 h-4" />
-              <p className={`text-sm ${false ? 'line-through text-muted-foreground' : 'text-foreground'}`}>
-                {cond.description}
-              </p>
-            </div>
-          ))}
-        </div>
-      </div>
 
-      <div>
-        <h4 className="font-semibold text-foreground mb-3">Recent Transactions</h4>
-        <div className="space-y-2">
-          <div className="text-center py-8 text-muted-foreground">
-            No transactions yet.
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-}
 
-function ActivityTab() {
-  return (
-    <div className="text-center py-12 text-muted-foreground">
-      No activity yet.
-    </div>
-  );
-}
