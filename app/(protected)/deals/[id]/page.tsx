@@ -1,12 +1,12 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import Link from 'next/link';
 import { dealsService, Deal } from '@/lib/services/deals.service';
 import { X, FileText, Users, CheckSquare, BarChart3, MessageSquare, ArrowRight } from 'lucide-react';
 import { formatCurrency, formatDate, getTimeAgo } from '@/lib/utils';
 import { getDealProgress } from '@/components/deals/utils';
 import { DealActivity, ChecklistItem } from '@/lib/types';
-import Link from 'next/link';
 import { useParams } from 'next/navigation';
 import { OverviewTab } from '@/components/deals/tabs/OverviewTab'
 import { DocumentsTab } from '@/components/deals/tabs/DocumentsTab';
@@ -139,7 +139,6 @@ export default function DealDetailPage() {
           </div>
         </div>
 
-        {/* Tab Content */}
         <div className="bg-white border border-border rounded-lg">
           <div className="border-b border-border flex gap-8 px-6 overflow-x-auto">
             {TAB_OPTIONS.map((tab) => (
@@ -260,8 +259,6 @@ export default function DealDetailPage() {
     </div>
   );
 }
-
-// Tab Components
 
 
 

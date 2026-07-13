@@ -6,7 +6,7 @@ import Link from 'next/link';
 import { Plus, Search, Filter, ChevronRight } from 'lucide-react';
 import { formatCurrency, formatDate } from '@/lib/utils';
 import { DealStatus } from '@/lib/types';
-import { useAuth } from '@/hooks/use-auth';
+import { useAuth } from '@/hooks/useAuth';
 
 const TAB_OPTIONS: { value: string; label: string }[] = [
   { value: 'all', label: 'All Deals' },

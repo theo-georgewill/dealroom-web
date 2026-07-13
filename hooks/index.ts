@@ -1,2 +1,5 @@
-export { useAuth } from './use-auth';
-export { useAsync } from './use-async';
+// hooks/index.ts
+
+export * from './deals';
+export * from './useAuth';
+export * from './useSync';
