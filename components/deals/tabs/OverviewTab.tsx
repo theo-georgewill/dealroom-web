@@ -1,46 +1,37 @@
 import { Deal } from "@/lib/services";
-import { formatCurrency, formatDate } from "@/lib/utils";
-import { getDealProgress } from '@/components/deals/utils';
+
+import { DealProgress } from "../overview/DealProgress";
+import { PropertySummaryCard } from "../overview/PropertySummaryCard";
+import { DealDescription } from "../overview/DealDescription";
+import { EscrowStatusCard } from "../overview/EscrowStatusCard";
+import { KeyDatesCard } from "../overview/KeyDatesCard";
+import { RecentActivityCard } from "../overview/RecentActivityCard";
+
+import { DealParticipantsCard } from "../overview/ParticipantsCard";
+import { QuickActionsCard } from "../overview/QuickActionsCard";
+import { SecurityCard } from "../overview/SecurityCard";
 
 export function OverviewTab({ deal }: { deal: Deal }) {
   return (
-    <div className="space-y-6">
-      <div>
-        <h4 className="font-semibold text-foreground mb-2">Deal Progress</h4>
-        <div className="flex items-center justify-between mb-2">
-          <p className="text-sm text-muted-foreground">Overall</p>
-          <p className="text-sm font-semibold text-foreground">{getDealProgress(deal.status)}%</p>
+    <div className="grid grid-cols-12 gap-6">
+      <div className="col-span-12 space-y-6">
+        <DealProgress deal={deal} />
+
+        <div className="grid grid-cols-3 gap-6">
+          <PropertySummaryCard deal={deal} />
+          <EscrowStatusCard deal={deal} />
+          <KeyDatesCard deal={deal} />
+
         </div>
-        <div className="w-full bg-secondary rounded-full h-3">
-          <div className="bg-primary h-full rounded-full" style={{ width: `${getDealProgress(deal.status)}%` }} />
+        <div className="grid grid-cols-12 gap-6">
+          <div className="col-span-8">
+            <RecentActivityCard />
+          </div>
+          <div className="col-span-4">
+            <DealParticipantsCard deal={deal} />
+          </div>
         </div>
       </div>
-
-      <div className="grid grid-cols-2 gap-4">
-        <div className="bg-secondary rounded-lg p-4">
-          <p className="text-xs text-muted-foreground mb-1">Deal Value</p>
-          <p className="text-lg font-bold text-foreground">{formatCurrency(deal.terms.dealValue, 'NGN')}</p>
-        </div>
-        <div className="bg-secondary rounded-lg p-4">
-          <p className="text-xs text-muted-foreground mb-1">Earnest Money</p>
-          <p className="text-lg font-bold text-foreground">{formatCurrency(Number(deal.terms.earnestMoney || 0), 'NGN')}</p>
-        </div>
-        <div className="bg-secondary rounded-lg p-4">
-          <p className="text-xs text-muted-foreground mb-1">Closing Date</p>
-          <p className="text-lg font-bold text-foreground">{formatDate(deal.terms.closingDate)}</p>
-        </div>
-        <div className="bg-secondary rounded-lg p-4">
-          <p className="text-xs text-muted-foreground mb-1">Parties</p>
-          <p className="text-lg font-bold text-foreground">{deal.participants.length}</p>
-        </div>
-      </div>
-
-      {deal.property.description && (
-        <div>
-          <h4 className="font-semibold text-foreground mb-2">Description</h4>
-          <p className="text-sm text-muted-foreground">{deal.property.description}</p>
-        </div>
-      )}
     </div>
   );
 }

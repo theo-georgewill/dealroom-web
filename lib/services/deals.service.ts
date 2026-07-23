@@ -68,17 +68,33 @@ export interface Deal {
     id: string;
     amount: number;
     currency: string;
+
+    status:
+      | 'PENDING'
+      | 'FUNDED'
+      | 'RELEASE_REQUESTED'
+      | 'RELEASED';
+
+    accountNumber?: string;
+
+    fundedAt?: string;
+    releasedAt?: string;
+
     fundingSource:
       | 'BUYER_DEPOSIT'
       | 'SPLIT_DEPOSIT'
       | 'THIRD_PARTY';
+
     holdingPeriod: number;
+
     releaseConditions: {
       id: string;
       description: string;
+      completed: boolean;
+      completedAt?: string;
       sortOrder: number;
     }[];
-  };
+  }
 
   participants: {
     id: string;

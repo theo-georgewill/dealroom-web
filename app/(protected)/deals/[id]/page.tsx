@@ -14,7 +14,8 @@ import { StakeholdersTab } from '@/components/deals/tabs/StakeholdersTab';
 import { ChecklistTab } from '@/components/deals/tabs/ChecklistTab';
 import { EscrowTab } from '@/components/deals/tabs/EscrowTab';
 import { ActivityTab } from '@/components/deals/tabs/ActivityTab';
-
+import { PanelRightOpen } from "lucide-react";
+import { DealDetailsDrawer } from "@/components/deals/drawer/DealDetailsDrawer";
 
 const TAB_OPTIONS = [
   { value: 'overview', label: 'Overview', icon: BarChart3 },
@@ -32,7 +33,7 @@ export default function DealDetailPage() {
   const [loading, setLoading] = useState(true);
 
   const [activeTab, setActiveTab] = useState('overview');
-  const [isDrawerOpen, setIsDrawerOpen] = useState(true);
+  const [isDrawerOpen, setIsDrawerOpen] = useState(false);
 
   useEffect(() => {
     async function loadDeal() {
@@ -79,15 +80,27 @@ export default function DealDetailPage() {
     <div className="flex gap-6">
       {/* Main Content */}
       <div className="flex-1">
-        {/* Breadcrumb */}
-        <div className="flex items-center gap-2 mb-6 text-sm">
-          <Link href="/deals" className="text-primary hover:underline">
-            Deals
-          </Link>
-          <span className="text-muted-foreground">/</span>
-          <span className="text-foreground font-medium">{deal.id}</span>
-        </div>
+        <div className="mb-6 flex items-center justify-between">
+          <div className="flex items-center gap-2 text-sm">
+            <Link href="/deals" className="text-primary hover:underline">
+              Deals
+            </Link>
 
+            <span className="text-muted-foreground">/</span>
+
+            <span className="font-medium text-foreground">
+              {deal.id}
+            </span>
+          </div>
+
+          <button
+            onClick={() => setIsDrawerOpen(true)}
+            className="inline-flex items-center gap-2 rounded-lg border border-border bg-white px-4 py-2 text-sm font-medium hover:bg-secondary"
+          >
+            <PanelRightOpen className="h-4 w-4" />
+            Deal Details
+          </button>
+        </div>
         {/* Property Card */}
         <div className="bg-white border border-border rounded-lg overflow-hidden mb-6">
           <div className="grid grid-cols-3 gap-6 p-6">
@@ -138,7 +151,7 @@ export default function DealDetailPage() {
             </div>
           </div>
         </div>
-
+        
         <div className="bg-white border border-border rounded-lg">
           <div className="border-b border-border flex gap-8 px-6 overflow-x-auto">
             {TAB_OPTIONS.map((tab) => (
@@ -159,103 +172,25 @@ export default function DealDetailPage() {
             {activeTab === 'overview' && <OverviewTab deal={deal} />}
             {activeTab === 'documents' && <DocumentsTab />}
             {activeTab === 'stakeholders' && <StakeholdersTab deal={deal} />}
-            {activeTab === 'checklist' && <ChecklistTab  />}
+            {activeTab === 'checklist' && <ChecklistTab deal={deal}  />}
             {activeTab === 'escrow' && <EscrowTab deal={deal} />}
-            {activeTab === 'activity' && <ActivityTab />}
+            {activeTab === 'activity' && <ActivityTab deal={deal}/>}
           </div>
         </div>
       </div>
 
-      {/* Side Drawer */}
       {isDrawerOpen && (
-        <div className="w-96 bg-white border-l border-border rounded-lg p-6 max-h-screen overflow-y-auto sticky top-6">
-          <button
-            onClick={() => setIsDrawerOpen(false)}
-            className="absolute top-4 right-4 p-2 hover:bg-secondary rounded-lg transition-colors"
-          >
-            <X size={20} className="text-muted-foreground" />
-          </button>
-
-          <h3 className="text-lg font-bold text-foreground mb-6">Deal Details</h3>
-
-          {/* Property Summary */}
-          <div className="mb-6">
-            <img
-              src={
-                deal.property.images[0]?.key ??
-                '/images/property-placeholder.jpg'
-              }
-              alt={deal.property.name}
-              className="w-full h-32 rounded-lg object-cover mb-3"
-            />
-            <h4 className="font-semibold text-foreground">{deal.title}</h4>
-            <p className="text-sm text-muted-foreground">{deal.property.address}</p>
-          </div>
-
-          {/* Key Info */}
-          <div className="space-y-4 mb-6 pb-6 border-b border-border">
-            <div className="flex items-center justify-between">
-              <span className="text-sm text-muted-foreground">Deal Type</span>
-              <span className="font-medium text-foreground">{deal.terms.dealType}</span>
-            </div>
-            <div className="flex items-center justify-between">
-              <span className="text-sm text-muted-foreground">Deal Value</span>
-              <span className="font-medium text-foreground">{formatCurrency(deal.terms.dealValue, 'NGN')}</span>
-            </div>
-            <div className="flex items-center justify-between">
-              <span className="text-sm text-muted-foreground">Currency</span>
-              <span className="font-medium text-foreground">{deal.terms.currency}</span>
-            </div>
-            <div className="flex items-center justify-between">
-              <span className="text-sm text-muted-foreground">Buyer</span>
-              <span className="font-medium text-foreground">{deal.participants.find(p => p.role === 'BUYER')?.user.firstName+" "+deal.participants.find(p => p.role === 'SELLER')?.user.lastName || 'N/A'}</span>
-            </div>
-            <div className="flex items-center justify-between">
-              <span className="text-sm text-muted-foreground">Seller</span>
-              <span className="font-medium text-foreground">{deal.participants.find(p => p.role === 'SELLER')?.user.firstName+" "+deal.participants.find(p => p.role === 'SELLER')?.user.lastName   || 'N/A'}</span>
-            </div>
-            <div className="flex items-center justify-between">
-              <span className="text-sm text-muted-foreground">Closing Date</span>
-              <span className="font-medium text-foreground">{formatDate(deal.terms.closingDate)}</span>
-            </div>
-          </div>
-
-          {/* Escrow Section */}
-          <div className="mb-6 pb-6 border-b border-border">
-            <h4 className="font-semibold text-foreground mb-3">Escrow Status</h4>
-            <div className="bg-green-50 border border-green-200 rounded-lg p-4">
-              <div className="flex items-center gap-2 mb-2">
-                <div className="w-2 h-2 bg-green-500 rounded-full" />
-                <p className="text-sm font-semibold text-green-900">Funded</p>
-              </div>
-              <p className="text-xs text-green-700 mb-3">Balance: {formatCurrency(deal.escrow.amount, 'NGN')}</p>
-              <p className="text-xs text-green-700">Provider: Nomba</p>
-            </div>
-          </div>
-
-          {/* Quick Actions */}
-          <div className="space-y-2">
-            <button className="w-full flex items-center justify-between px-4 py-2 bg-secondary hover:bg-secondary text-foreground rounded-lg text-sm font-medium transition-colors">
-              <span>Upload Document</span>
-              <ArrowRight size={16} />
-            </button>
-            <button className="w-full flex items-center justify-between px-4 py-2 bg-secondary hover:bg-secondary text-foreground rounded-lg text-sm font-medium transition-colors">
-              <span>Create Task</span>
-              <ArrowRight size={16} />
-            </button>
-            <button className="w-full flex items-center justify-between px-4 py-2 bg-secondary hover:bg-secondary text-foreground rounded-lg text-sm font-medium transition-colors">
-              <span>Send Message</span>
-              <ArrowRight size={16} />
-            </button>
-          </div>
-
-          {/* Security Notice */}
-          <div className="mt-6 p-3 bg-green-50 border border-green-200 rounded-lg">
-            <p className="text-xs text-green-900 font-semibold mb-1">Secure & Protected</p>
-            <p className="text-xs text-green-700">This deal room is protected with bank-grade security and escrow by Nomba.</p>
-          </div>
-        </div>
+        <div
+          className="fixed inset-0 z-40 bg-black/10 backdrop-blur-sm"
+          onClick={() => setIsDrawerOpen(false)}
+        />
       )}
+
+      <DealDetailsDrawer
+        deal={deal}
+        open={isDrawerOpen}
+        onClose={() => setIsDrawerOpen(false)}
+      />
     </div>
   );
 }

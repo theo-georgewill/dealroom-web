@@ -1,8 +1,24 @@
+import {
+  ActivityTimeline,
+  ActivityToolbar,
+  LoadMoreButton,
+} from "@/components/deals/activity";
+import { Deal } from "@/lib/services";
 
-export function ActivityTab() {
+interface ActivityTabProps {
+  deal: Deal;
+}
+
+export function ActivityTab({
+  deal,
+}: ActivityTabProps) {
   return (
-    <div className="text-center py-12 text-muted-foreground">
-      No activity yet.
+    <div className="space-y-8">
+      <ActivityToolbar />
+
+      <ActivityTimeline deal={deal} />
+
+      <LoadMoreButton />
     </div>
   );
 }
