@@ -110,23 +110,24 @@ function RecentActivityCard({
   );
 }
 
-export default async function DashboardPage() {
+export default function DashboardPage() {
     
   const {
-    data: deals = [],
+    data: response,
     isLoading,
     error,
   } = useQuery({
     queryKey: ['deals'],
-    queryFn: async () => {
-      const response = await dealsService.listDeals({ limit: 100 });
-      return response.data;
-    },
+    queryFn: () => dealsService.listDeals({ limit: 100 }),
   });
+
+  const deals = response?.data ?? [];
+  const meta = response?.meta;
 
   if (isLoading) {
     return <div>Loading...</div>;
   }
+
 
   if (error) {
     return <div>Failed to load dashboard.</div>;
