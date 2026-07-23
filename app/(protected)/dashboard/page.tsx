@@ -5,12 +5,8 @@ import Link from 'next/link';
 import { ArrowUpRight, Activity, TrendingUp, DollarSign } from 'lucide-react';
 import { formatCurrency, formatDate } from '@/lib/utils';
 import { Deal, dealsService } from '@/lib/services/deals.service';
-import { cookies } from 'next/headers';
+import { useQuery } from '@tanstack/react-query';
 
-export const metadata = {
-  title: 'Dashboard - Deal Room',
-  description: 'View your real estate transaction metrics and activity',
-};
 
 export function formatCompactCurrency(value: number) {
   const abs = Math.abs(value);
@@ -115,21 +111,26 @@ function RecentActivityCard({
 }
 
 export default async function DashboardPage() {
-  const cookieStore = await cookies();
-
-  const cookieHeader = cookieStore
-    .getAll()
-    .map(c => `${c.name}=${c.value}`)
-    .join('; ');
     
-  const { data: deals } = await dealsService.listDeals(
-    { limit: 100 },
-    {
-      headers: {
-        Cookie: cookieHeader,
-      },
-    }
-  );
+  const {
+    data: deals = [],
+    isLoading,
+    error,
+  } = useQuery({
+    queryKey: ['deals'],
+    queryFn: async () => {
+      const response = await dealsService.listDeals({ limit: 100 });
+      return response.data;
+    },
+  });
+
+  if (isLoading) {
+    return <div>Loading...</div>;
+  }
+
+  if (error) {
+    return <div>Failed to load dashboard.</div>;
+  }
 
   const activeDeals = deals.filter((deal) =>
     [
