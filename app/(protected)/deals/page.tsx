@@ -79,10 +79,6 @@ export default function DealsPage() {
     loadDeals();
   }, [page, searchQuery, activeTab]);
   
-  useEffect(() => {
-    setPage(1);
-  }, [activeTab]);
-
   const ACTIVE_STATUSES: DealStatus[] = [
     'PENDING_PARTICIPANTS',
     'PENDING_FUNDING',
@@ -159,7 +155,10 @@ export default function DealsPage() {
         {TAB_OPTIONS.map((tab) => (
           <button
             key={tab.value}
-            onClick={() => setActiveTab(tab.value)}
+            onClick={() => {
+              setActiveTab(tab.value); 
+              setPage(1);
+            }}
             className={`px-3 py-2 font-medium text-sm whitespace-nowrap transition-colors ${
               activeTab === tab.value
                 ? 'text-primary border-b-2 border-primary'

@@ -49,9 +49,6 @@ export default function SignInPage() {
     <div className="w-full max-w-md mx-auto">
       {/* Header */}
       <div className="mb-10 text-center">
-        <div className="inline-flex items-center justify-center w-14 h-14 bg-gradient-to-br from-primary to-blue-600 rounded-xl mb-6 shadow-lg">
-          <span className="text-xl font-bold text-primary-foreground">DR</span>
-        </div>
         <h1 className="text-3xl font-bold text-foreground mb-2">Sign In</h1>
         <p className="text-base text-muted-foreground">
           Welcome back to Deal Room

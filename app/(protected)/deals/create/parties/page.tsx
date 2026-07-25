@@ -47,7 +47,7 @@ function PartiesContent() {
 
   const onAddStakeholder = (data: StakeholderFormInput) => {
     const stakeholder: StakeholderFormData = {
-      id: Date.now().toString(),
+      id: crypto.randomUUID(),
       type: selectedType,
       fullName: data.fullName,
       email: data.email,

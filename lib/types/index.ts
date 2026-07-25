@@ -1,5 +1,41 @@
 // Auth Types
-import type { Deal } from '@/lib/services/deals.service';
+
+// Legacy mock types (for demo data only)
+export interface MockDeal {
+  id: string;
+  name: string;
+  property: Property;
+  dealType: DealType;
+  dealValue: number;
+  currency: string;
+  earnestMoney: number;
+  closingDate: string;
+  longStopDate: string;
+  paymentStructure: string;
+  contingencies: string[];
+  description: string;
+  status:
+    | 'In Progress'
+    | 'Due Diligence'
+    | 'Document Review'
+    | 'Closed'
+    | 'On Hold'
+    | 'Cancelled'
+    | 'Terminated';
+  progress: number;
+  owner: User;
+  createdDate: string;
+  lastUpdated: string;
+  parties: Party[];
+  escrow: EscrowData;
+  documents: DealDocument[];
+  checklists: DealChecklist[];
+  activities: DealActivity[];
+  participants: {
+    user: User;
+    role: 'Owner' | 'Contributor';
+  }[];
+}
 export interface AuthUser {
   id: string;
   email: string;
@@ -173,7 +209,7 @@ export interface DealDocument {
   name: string;
   type: string;
   size: number;
-  uploadedBy: User;
+  uploadedBy: User | Party ;
   uploadedDate: string;
   status: 'Pending' | 'Approved' | 'Rejected' | 'Review';
   url: string;
@@ -182,7 +218,7 @@ export interface DealDocument {
 export interface DealActivity {
   id: string;
   type: 'document_upload' | 'task_completed' | 'stakeholder_added' | 'comment' | 'escrow_update' | 'status_change' | 'deal_created';
-  actor: User;
+  actor: User | Party;
   description: string;
   timestamp: string;
   linkedResource?: {
@@ -210,7 +246,7 @@ export interface Notification {
   title: string;
   description: string;
   actor: User;
-  relatedDeal?: Deal;
+  relatedDeal?: MockDeal;
   timestamp: string;
   read: boolean;
   actionUrl?: string;
@@ -266,6 +302,6 @@ export interface DashboardMetrics {
 
 export interface DashboardActivity {
   activities: DealActivity[];
-  recentDeals: Deal[];
-  upcomingDeals: Deal[];
+  recentDeals: MockDeal[];
+  upcomingDeals: MockDeal[];
 }

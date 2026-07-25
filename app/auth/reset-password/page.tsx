@@ -1,32 +1,26 @@
 'use client';
 
-import { Suspense, useState, useEffect } from 'react';
-import { useSearchParams, useRouter } from 'next/navigation';
+import { Suspense, useState } from 'react';
+import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { useAuth } from '@/hooks';
 import { Button } from '@/components/ui/button';
 import { AlertCircle, Loader2, CheckCircle } from 'lucide-react';
 
 function ResetPasswordContent() {
-  const router = useRouter();
   const searchParams = useSearchParams();
   const { resetPassword, isLoading } = useAuth();
   
-  const [token, setToken] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
-  const [error, setError] = useState('');
   const [success, setSuccess] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [error, setError] = useState('');
 
-  useEffect(() => {
-    const resetToken = searchParams.get('token');
-    if (!resetToken) {
-      setError('Invalid or missing reset token. Please request a new password reset.');
-    } else {
-      setToken(resetToken);
-    }
-  }, [searchParams]);
+  const token = searchParams.get('token');
+  const tokenError = !token
+    ? 'Invalid or missing reset token. Please request a new password reset.'
+    : null;
 
   const validateForm = (): boolean => {
     if (password.length < 8) {
@@ -62,23 +56,18 @@ function ResetPasswordContent() {
       });
       setSuccess(true);
     } catch (err: any) {
-      const errorMessage = err?.response?.data?.message || 
-                          err?.message || 
-                          'Failed to reset password. Please try again.';
-      setError(errorMessage);
+      const message = err?.response?.data?.message;
+      setError(
+        Array.isArray(message)
+          ? message.join(', ')
+          : message ||
+            err?.message ||
+            'Failed to reset password. Please try again.'
+      );
     } finally {
       setIsSubmitting(false);
     }
   };
-
-  if (!token && !error) {
-    return (
-      <div className="w-full text-center">
-        <Loader2 size={32} className="animate-spin mx-auto text-primary mb-4" />
-        <p className="text-muted-foreground">Loading...</p>
-      </div>
-    );
-  }
 
   return (
     <div className="w-full">
@@ -107,15 +96,15 @@ function ResetPasswordContent() {
       )}
 
       {/* Error Alert */}
-      {error && !success && (
+      {(tokenError || error) && !success && (
         <div className="mb-6 p-4 bg-destructive/10 border border-destructive/30 rounded-lg flex gap-3">
           <AlertCircle size={20} className="text-destructive flex-shrink-0 mt-0.5" />
-          <p className="text-sm text-destructive">{error}</p>
+          <p className="text-sm text-destructive">{tokenError || error}</p>
         </div>
       )}
 
       {/* Form */}
-      {!success && !error && (
+      {!success && !tokenError && (
         <form onSubmit={handleSubmit} className="space-y-4">
           {/* Password */}
           <div>
@@ -175,9 +164,11 @@ function ResetPasswordContent() {
       )}
 
       {success && (
-        <Button className="w-full mt-6" asChild>
-          <Link href="/auth/signin">Sign In to Your Account</Link>
-        </Button>
+        <Link href="/auth/signin">
+          <Button className="w-full mt-6">
+            Sign In To Your Account
+          </Button>
+        </Link>
       )}
 
       {/* Back to Sign In Link */}

@@ -16,7 +16,7 @@ export function LoadMoreButton({
   if (!hasMore) {
     return (
       <div className="py-8 text-center text-sm text-muted-foreground">
-        You've reached the end of the activity feed.
+        You&apos;ve reached the end of the activity feed.
       </div>
     );
   }
