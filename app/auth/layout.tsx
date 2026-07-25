@@ -1,9 +1,9 @@
 import type { Metadata } from 'next';
-import { AuthProvider } from '@/lib/context/auth-context';
+import Image from 'next/image';
 
 export const metadata: Metadata = {
-  title: 'Authentication - Deal Room',
-  description: 'Sign in to your Deal Room account',
+  title: 'Authentication - DealRoom',
+  description: 'Sign in to your DealRoom account',
 };
 
 export default function AuthLayout({
@@ -12,9 +12,24 @@ export default function AuthLayout({
   children: React.ReactNode;
 }) {
   return (
-    <div className="min-h-screen flex items-center justify-center bg-slate-50 px-4">
-      <div className="w-full max-w-md">
-        {children}
+    <div className="min-h-screen bg-background lg:grid lg:grid-cols-[55%_45%]">
+      {/* Hero */}
+      <div className="relative hidden overflow-hidden lg:block">
+        <Image
+          src="/auth-hero.png"
+          alt="DealRoom"
+          fill
+          priority
+          sizes="10vw"
+          className="object-cover object-top"
+        />
+      </div>
+
+      {/* Form */}
+      <div className="flex items-center justify-center px-4 py-12">
+        <div className="w-full max-w-md">
+          {children}
+        </div>
       </div>
     </div>
   );

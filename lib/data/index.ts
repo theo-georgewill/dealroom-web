@@ -1,4 +1,4 @@
-import { Deal, User, Property, Party, Notification, DashboardMetrics } from '@/lib/types';
+import { MockDeal, User, Property, Party, Notification, DashboardMetrics } from '@/lib/types';
 
 // Mock Users
 export const MOCK_USERS: Record<string, User> = {
@@ -7,7 +7,7 @@ export const MOCK_USERS: Record<string, User> = {
     name: 'Theodore Georgewill',
     email: 'theodore@dealroom.ng',
     phone: '+234 801 234 5678',
-    role: 'Admin',
+    role: 'ADMIN',
     company: 'Deal Room Solutions Ltd',
     avatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=96&h=96&fit=crop',
     status: 'Active',
@@ -17,7 +17,7 @@ export const MOCK_USERS: Record<string, User> = {
     name: 'David Okafor',
     email: 'david.okafor@email.com',
     phone: '+234 801 234 5678',
-    role: 'Buyer',
+    role: 'BUYER',
     company: '',
     avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=96&h=96&fit=crop',
     status: 'Active',
@@ -27,7 +27,7 @@ export const MOCK_USERS: Record<string, User> = {
     name: 'Emeka Nwosu',
     email: 'emeka.nwosu@email.com',
     phone: '+234 809 876 5432',
-    role: 'Seller',
+    role: 'SELLER',
     company: 'Estate Ventures Ltd',
     avatar: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=96&h=96&fit=crop',
     status: 'Active',
@@ -37,7 +37,7 @@ export const MOCK_USERS: Record<string, User> = {
     name: 'Tunde Lawal',
     email: 'tunde.lawal@lawfirm.com',
     phone: '+234 803 345 6789',
-    role: 'Lawyer',
+    role: 'LAWYER',
     company: 'TL & Associates',
     avatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=96&h=96&fit=crop',
     status: 'Active',
@@ -47,7 +47,7 @@ export const MOCK_USERS: Record<string, User> = {
     name: 'Chika Obi',
     email: 'chika.obi@estatepro.com',
     phone: '+234 806 765 4321',
-    role: 'Agent',
+    role: 'AGENT',
     company: 'EstatePro Realty',
     avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=96&h=96&fit=crop',
     status: 'Active',
@@ -57,7 +57,7 @@ export const MOCK_USERS: Record<string, User> = {
     name: 'Chioma Adebayo',
     email: 'chioma.adebayo@lawfirm.com',
     phone: '+234 807 234 5678',
-    role: 'Lawyer',
+    role: 'LAWYER',
     company: 'TL & Associates',
     avatar: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=96&h=96&fit=crop',
     status: 'Active',
@@ -67,7 +67,7 @@ export const MOCK_USERS: Record<string, User> = {
     name: 'Chloe Obi',
     email: 'chloe.obi@estatepro.com',
     phone: '+234 808 765 4321',
-    role: 'Agent',
+    role: 'AGENT',
     company: 'EstatePro Realty',
     avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=96&h=96&fit=crop',
     status: 'Active',
@@ -77,7 +77,7 @@ export const MOCK_USERS: Record<string, User> = {
     name: 'Sarah Johnson',
     email: 'sarah.johnson@email.com',
     phone: '+234 805 234 5678',
-    role: 'Buyer',
+    role: 'BUYER',
     company: '',
     avatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=96&h=96&fit=crop',
     status: 'Active',
@@ -87,7 +87,7 @@ export const MOCK_USERS: Record<string, User> = {
     name: 'Amaka Okafor',
     email: 'amaka.okafor@email.com',
     phone: '+234 804 567 8901',
-    role: 'Buyer',
+    role: 'BUYER',
     company: '',
     avatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=96&h=96&fit=crop',
     status: 'Active',
@@ -99,7 +99,7 @@ export const MOCK_PROPERTIES: Record<string, Property> = {
   lekki1: {
     id: 'prop-1',
     name: 'Lekki Phase 1 Duplex',
-    type: 'Residential',
+    type: 'RESIDENTIAL',
     address: '23 Admiralty Way, Lekki Phase 1',
     city: 'Lagos',
     state: 'Lagos State',
@@ -111,7 +111,7 @@ export const MOCK_PROPERTIES: Record<string, Property> = {
   victoria: {
     id: 'prop-2',
     name: 'Victoria Island Land',
-    type: 'Land',
+    type: 'LAND',
     address: 'Plot 15A, Kofo Abayomi St',
     city: 'Lagos',
     state: 'Lagos State',
@@ -122,7 +122,7 @@ export const MOCK_PROPERTIES: Record<string, Property> = {
   ikeja: {
     id: 'prop-3',
     name: 'Ikeja Office Building',
-    type: 'Commercial',
+    type: 'COMMERCIAL',
     address: '12 Allen Avenue, Ikeja',
     city: 'Lagos',
     state: 'Lagos State',
@@ -133,7 +133,7 @@ export const MOCK_PROPERTIES: Record<string, Property> = {
   abuja: {
     id: 'prop-4',
     name: 'Abuja Residential Estate',
-    type: 'Residential',
+    type: 'RESIDENTIAL',
     address: 'Katampe Extension',
     city: 'Abuja',
     state: 'FCT',
@@ -144,7 +144,7 @@ export const MOCK_PROPERTIES: Record<string, Property> = {
   epe: {
     id: 'prop-5',
     name: 'Epe Land Acquisition',
-    type: 'Land',
+    type: 'LAND',
     address: 'Epe Expressway',
     city: 'Epe',
     state: 'Lagos State',
@@ -155,7 +155,7 @@ export const MOCK_PROPERTIES: Record<string, Property> = {
   ikoyi: {
     id: 'prop-6',
     name: 'Ikoyi Apartment Block',
-    type: 'Residential',
+    type: 'RESIDENTIAL',
     address: '5 Bourdillon Road',
     city: 'Lagos',
     state: 'Lagos State',
@@ -166,7 +166,7 @@ export const MOCK_PROPERTIES: Record<string, Property> = {
   banana: {
     id: 'prop-7',
     name: 'Banana Island Waterfront',
-    type: 'Residential',
+    type: 'RESIDENTIAL',
     address: 'Plot 8B, Banana Island',
     city: 'Ikoyi',
     state: 'Lagos State',
@@ -177,7 +177,7 @@ export const MOCK_PROPERTIES: Record<string, Property> = {
 };
 
 // Generate mock parties
-function generateParty(id: string, name: string, email: string, phone: string, role: 'Buyer' | 'Seller' | 'Lawyer' | 'Agent', company?: string): Party {
+function generateParty(id: string, name: string, email: string, phone: string, role: 'BUYER' | 'SELLER' | 'LAWYER' | 'AGENT', company?: string): Party {
   return {
     id,
     name,
@@ -203,7 +203,7 @@ function generateDeal(
   lastUpdated: string,
   parties: Party[],
   closingDate: string
-): Deal {
+): MockDeal {
   return {
     id,
     name,
@@ -365,7 +365,7 @@ function generateDeal(
 }
 
 // Generate all deals
-export const MOCK_DEALS: Deal[] = [
+export const MOCK_DEALS: MockDeal[] = [
   generateDeal(
     'deal-001',
     'Lekki Phase 1 Duplex',
@@ -378,10 +378,10 @@ export const MOCK_DEALS: Deal[] = [
     '2024-05-02',
     '2024-05-08',
     [
-      generateParty('party-1', 'David Okafor', 'david.okafor@email.com', '+234 801 234 5678', 'Buyer'),
-      generateParty('party-2', 'Emeka Nwosu', 'emeka.nwosu@email.com', '+234 809 876 5432', 'Seller', 'Estate Ventures Ltd'),
-      generateParty('party-3', 'Tunde Lawal', 'tunde.lawal@lawfirm.com', '+234 803 345 6789', 'Lawyer', 'TL & Associates'),
-      generateParty('party-4', 'Chika Obi', 'chika.obi@estatepro.com', '+234 806 765 4321', 'Agent', 'EstatePro Realty'),
+      generateParty('party-1', 'David Okafor', 'david.okafor@email.com', '+234 801 234 5678', 'BUYER'),
+      generateParty('party-2', 'Emeka Nwosu', 'emeka.nwosu@email.com', '+234 809 876 5432', 'SELLER', 'Estate Ventures Ltd'),
+      generateParty('party-3', 'Tunde Lawal', 'tunde.lawal@lawfirm.com', '+234 803 345 6789', 'LAWYER', 'TL & Associates'),
+      generateParty('party-4', 'Chika Obi', 'chika.obi@estatepro.com', '+234 806 765 4321', 'AGENT', 'EstatePro Realty'),
     ],
     '2024-12-31'
   ),
@@ -397,9 +397,9 @@ export const MOCK_DEALS: Deal[] = [
     '2024-05-03',
     '2024-05-07',
     [
-      generateParty('party-5', 'Sarah Johnson', 'sarah.johnson@email.com', '+234 805 234 5678', 'Buyer'),
-      generateParty('party-6', 'Emeka Nwosu', 'emeka.nwosu@email.com', '+234 809 876 5432', 'Seller', 'Estate Ventures Ltd'),
-      generateParty('party-7', 'Tunde Lawal', 'tunde.lawal@lawfirm.com', '+234 803 345 6789', 'Lawyer', 'TL & Associates'),
+      generateParty('party-5', 'Sarah Johnson', 'sarah.johnson@email.com', '+234 805 234 5678', 'BUYER'),
+      generateParty('party-6', 'Emeka Nwosu', 'emeka.nwosu@email.com', '+234 809 876 5432', 'SELLER', 'Estate Ventures Ltd'),
+      generateParty('party-7', 'Tunde Lawal', 'tunde.lawal@lawfirm.com', '+234 803 345 6789', 'LAWYER', 'TL & Associates'),
     ],
     '2024-12-31'
   ),
@@ -415,9 +415,9 @@ export const MOCK_DEALS: Deal[] = [
     '2024-05-04',
     '2024-05-06',
     [
-      generateParty('party-8', 'Amaka Okafor', 'amaka.okafor@email.com', '+234 804 567 8901', 'Buyer'),
-      generateParty('party-9', 'Emeka Nwosu', 'emeka.nwosu@email.com', '+234 809 876 5432', 'Seller', 'Estate Ventures Ltd'),
-      generateParty('party-10', 'Chioma Adebayo', 'chioma.adebayo@lawfirm.com', '+234 807 234 5678', 'Lawyer', 'TL & Associates'),
+      generateParty('party-8', 'Amaka Okafor', 'amaka.okafor@email.com', '+234 804 567 8901', 'BUYER'),
+      generateParty('party-9', 'Emeka Nwosu', 'emeka.nwosu@email.com', '+234 809 876 5432', 'SELLER', 'Estate Ventures Ltd'),
+      generateParty('party-10', 'Chioma Adebayo', 'chioma.adebayo@lawfirm.com', '+234 807 234 5678', 'LAWYER', 'TL & Associates'),
     ],
     '2024-12-31'
   ),
@@ -433,10 +433,10 @@ export const MOCK_DEALS: Deal[] = [
     '2024-05-05',
     '2024-05-09',
     [
-      generateParty('party-11', 'David Okafor', 'david.okafor@email.com', '+234 801 234 5678', 'Buyer'),
-      generateParty('party-12', 'Emeka Nwosu', 'emeka.nwosu@email.com', '+234 809 876 5432', 'Seller', 'Estate Ventures Ltd'),
-      generateParty('party-13', 'Tunde Lawal', 'tunde.lawal@lawfirm.com', '+234 803 345 6789', 'Lawyer', 'TL & Associates'),
-      generateParty('party-14', 'Chika Obi', 'chika.obi@estatepro.com', '+234 806 765 4321', 'Agent', 'EstatePro Realty'),
+      generateParty('party-11', 'David Okafor', 'david.okafor@email.com', '+234 801 234 5678', 'BUYER'),
+      generateParty('party-12', 'Emeka Nwosu', 'emeka.nwosu@email.com', '+234 809 876 5432', 'SELLER', 'Estate Ventures Ltd'),
+      generateParty('party-13', 'Tunde Lawal', 'tunde.lawal@lawfirm.com', '+234 803 345 6789', 'LAWYER', 'TL & Associates'),
+      generateParty('party-14', 'Chika Obi', 'chika.obi@estatepro.com', '+234 806 765 4321', 'AGENT', 'EstatePro Realty'),
     ],
     '2024-12-31'
   ),
@@ -452,9 +452,9 @@ export const MOCK_DEALS: Deal[] = [
     '2024-05-01',
     '2024-05-02',
     [
-      generateParty('party-15', 'Sarah Johnson', 'sarah.johnson@email.com', '+234 805 234 5678', 'Buyer'),
-      generateParty('party-16', 'Emeka Nwosu', 'emeka.nwosu@email.com', '+234 809 876 5432', 'Seller', 'Estate Ventures Ltd'),
-      generateParty('party-17', 'David Mensah', 'david.mensah@estate.com', '+234 806 123 4567', 'Agent', 'Estate Pro'),
+      generateParty('party-15', 'Sarah Johnson', 'sarah.johnson@email.com', '+234 805 234 5678', 'BUYER'),
+      generateParty('party-16', 'Emeka Nwosu', 'emeka.nwosu@email.com', '+234 809 876 5432', 'SELLER', 'Estate Ventures Ltd'),
+      generateParty('party-17', 'David Mensah', 'david.mensah@estate.com', '+234 806 123 4567', 'AGENT', 'Estate Pro'),
     ],
     '2024-12-31'
   ),
@@ -470,10 +470,10 @@ export const MOCK_DEALS: Deal[] = [
     '2024-05-01',
     '2024-05-10',
     [
-      generateParty('party-18', 'David Okafor', 'david.okafor@email.com', '+234 801 234 5678', 'Buyer'),
-      generateParty('party-19', 'Emeka Nwosu', 'emeka.nwosu@email.com', '+234 809 876 5432', 'Seller', 'Estate Ventures Ltd'),
-      generateParty('party-20', 'Tunde Lawal', 'tunde.lawal@lawfirm.com', '+234 803 345 6789', 'Lawyer', 'TL & Associates'),
-      generateParty('party-21', 'Chloe Obi', 'chloe.obi@estatepro.com', '+234 808 765 4321', 'Agent', 'EstatePro Realty'),
+      generateParty('party-18', 'David Okafor', 'david.okafor@email.com', '+234 801 234 5678', 'BUYER'),
+      generateParty('party-19', 'Emeka Nwosu', 'emeka.nwosu@email.com', '+234 809 876 5432', 'SELLER', 'Estate Ventures Ltd'),
+      generateParty('party-20', 'Tunde Lawal', 'tunde.lawal@lawfirm.com', '+234 803 345 6789', 'LAWYER', 'TL & Associates'),
+      generateParty('party-21', 'Chloe Obi', 'chloe.obi@estatepro.com', '+234 808 765 4321', 'AGENT', 'EstatePro Realty'),
     ],
     '2024-12-31'
   ),
@@ -489,10 +489,10 @@ export const MOCK_DEALS: Deal[] = [
     '2024-04-20',
     '2024-04-28',
     [
-      generateParty('party-22', 'Sarah Johnson', 'sarah.johnson@email.com', '+234 805 234 5678', 'Buyer'),
-      generateParty('party-23', 'Emeka Nwosu', 'emeka.nwosu@email.com', '+234 809 876 5432', 'Seller', 'Estate Ventures Ltd'),
-      generateParty('party-24', 'Tunde Lawal', 'tunde.lawal@lawfirm.com', '+234 803 345 6789', 'Lawyer', 'TL & Associates'),
-      generateParty('party-25', 'Chika Obi', 'chika.obi@estatepro.com', '+234 806 765 4321', 'Agent', 'EstatePro Realty'),
+      generateParty('party-22', 'Sarah Johnson', 'sarah.johnson@email.com', '+234 805 234 5678', 'BUYER'),
+      generateParty('party-23', 'Emeka Nwosu', 'emeka.nwosu@email.com', '+234 809 876 5432', 'SELLER', 'Estate Ventures Ltd'),
+      generateParty('party-24', 'Tunde Lawal', 'tunde.lawal@lawfirm.com', '+234 803 345 6789', 'LAWYER', 'TL & Associates'),
+      generateParty('party-25', 'Chika Obi', 'chika.obi@estatepro.com', '+234 806 765 4321', 'AGENT', 'EstatePro Realty'),
     ],
     '2024-04-28'
   ),
@@ -562,7 +562,7 @@ export const MOCK_NOTIFICATIONS: Notification[] = [
   },
   {
     id: 'notif-7',
-    type: 'escrow_release',
+    type: 'escrow_released',
     title: 'Escrow release initiated',
     description: 'Funds release has been initiated by David Okafor',
     actor: MOCK_USERS.david,

@@ -114,9 +114,11 @@ export default function ForgotPasswordPage() {
           </Button>
         </form>
       ) : (
-        <Button className="w-full mt-6" asChild>
-          <Link href="/auth/signin">Back to Sign In</Link>
-        </Button>
+        <Link href="/auth/signin">
+          <Button className="w-full mt-6">
+            Back to signin
+          </Button>
+        </Link>
       )}
 
       {/* Back to Sign In Link */}
