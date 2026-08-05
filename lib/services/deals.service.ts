@@ -128,6 +128,23 @@ export interface Deal {
   updatedAt: string;
 }
 
+export interface CreateDraftRequest {
+  property: {
+    name: string;
+    type: string;
+    address: string;
+    city: string;
+    state: string;
+    country: string;
+    description?: string;
+  };
+}
+
+export interface UploadPropertyImagesRequest {
+  propertyId: string;
+  files: File[];
+}
+
 export interface CreateDealRequest {
   property: {
     name: string;
@@ -219,7 +236,35 @@ class DealsService {
     return response.data.data;
   }
 
-  async createDeal(data: CreateDealRequest): Promise<CreateDealResponse> {
+  async createDraft(data: CreateDraftRequest): Promise<Deal> {
+    const propertyTypeMap = {
+      Residential: 'RESIDENTIAL',
+      Commercial: 'COMMERCIAL',
+      Industrial: 'INDUSTRIAL',
+      Land: 'LAND',
+      'Mixed Use': 'MIXED_USE',
+    } as const;
+
+    const payload = {
+      title: data.property.name,
+      property: {
+        ...data.property,
+        type:
+          propertyTypeMap[
+            data.property.type as keyof typeof propertyTypeMap
+          ],
+      },
+    };
+
+    const response = await apiClient.post<ApiResponse<Deal>>(
+      '/deals/drafts',
+      payload,
+    );
+
+    return response.data.data;
+  }
+
+  async publishDeal(data: CreateDealRequest): Promise<CreateDealResponse> {
     const propertyTypeMap = {
       Residential: 'RESIDENTIAL',
       Commercial: 'COMMERCIAL',
@@ -305,7 +350,6 @@ class DealsService {
     return response.data.data;
   }
 
-
   async updateDeal(
     id: string,
     data: UpdateDealRequest,
@@ -333,6 +377,28 @@ class DealsService {
       data: response.data.data,
       meta: response.data.meta!,
     };
+  }
+
+  async uploadPropertyImages(
+    data: UploadPropertyImagesRequest,
+  ): Promise<string[]> {
+    const formData = new FormData();
+
+    data.files.forEach((file) => {
+      formData.append('files', file);
+    });
+
+    const response = await apiClient.post<ApiResponse<string[]>>(
+      `/properties/${data.propertyId}/images`,
+      formData,
+      {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      },
+    );
+
+    return response.data.data;
   }
 }
 
