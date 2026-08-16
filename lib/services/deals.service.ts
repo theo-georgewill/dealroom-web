@@ -1,5 +1,5 @@
 import { apiClient } from '@/lib/api-client';
-import { Axios, AxiosRequestConfig } from 'axios';
+import { AxiosRequestConfig } from 'axios';
 
 interface ApiResponse<T,  M = undefined> {
   success: boolean;
@@ -45,7 +45,7 @@ export interface Deal {
     images: {
       key: string;
     }[];
-  };
+  } | null;
 
   terms: {
     dealType:
@@ -62,31 +62,25 @@ export interface Deal {
       | 'SINGLE_PAYMENT'
       | 'MILESTONE_PAYMENTS'
       | 'CUSTOM_STRUCTURE';
-  };
+  } | null;
 
   escrow: {
     id: string;
     amount: number;
     currency: string;
-
     status:
       | 'PENDING'
       | 'FUNDED'
       | 'RELEASE_REQUESTED'
       | 'RELEASED';
-
     accountNumber?: string;
-
     fundedAt?: string;
     releasedAt?: string;
-
     fundingSource:
       | 'BUYER_DEPOSIT'
       | 'SPLIT_DEPOSIT'
       | 'THIRD_PARTY';
-
     holdingPeriod: number;
-
     releaseConditions: {
       id: string;
       description: string;
@@ -94,18 +88,17 @@ export interface Deal {
       completedAt?: string;
       sortOrder: number;
     }[];
-  }
+  } | null;
 
   participants: {
     id: string;
     role:
       | 'BUYER'
       | 'SELLER'
-      | 'LAWYER'
+      | 'LAWYER' 
       | 'AGENT';
     status: string;
     joinedAt: string | null;
-
     user: {
       id: string;
       firstName: string;
@@ -128,64 +121,70 @@ export interface Deal {
   updatedAt: string;
 }
 
-export interface CreateDraftRequest {
-  property: {
-    name: string;
-    type: string;
-    address: string;
-    city: string;
-    state: string;
-    country: string;
-    description?: string;
-  };
+export type ParticipantRole =
+  | 'BUYER'
+  | 'SELLER'
+  | 'LAWYER'
+  | 'AGENT';
+
+export type DealType =
+  | 'PURCHASE'
+  | 'LEASE'
+  | 'SALE'
+  | 'EXCHANGE';
+
+export type PaymentStructure =
+  | 'SINGLE_PAYMENT'
+  | 'MILESTONE_PAYMENTS'
+  | 'CUSTOM_STRUCTURE';
+
+export type FundingSource =
+  | 'BUYER_DEPOSIT'
+  | 'SPLIT_DEPOSIT'
+  | 'THIRD_PARTY';
+
+export type PropertyType =
+  | 'RESIDENTIAL'
+  | 'COMMERCIAL'
+  | 'INDUSTRIAL'
+  | 'LAND'
+  | 'MIXED_USE';
+
+export interface CreateDraftDealRequest {
+  title?: string;
+  propertyId?: string;
+  creatorRole?: ParticipantRole;
 }
 
-export interface UploadPropertyImagesRequest {
-  propertyId: string;
-  files: File[];
-}
 
 export interface CreateDealRequest {
-  property: {
-    name: string;
-    type: string;
-    address: string;
-    city: string;
-    state: string;
-    country: string;
-    description?: string;
-    images: string[];
-  };
-
-  stakeholders: {
-    type: 'buyer' | 'seller' | 'lawyer' | 'agent';
-    fullName: string;
-    email: string;
-    phone?: string;
-  }[];
+  title: string;
+  propertyId: string;
+  creatorRole: ParticipantRole;
 
   terms: {
-    dealType: 'Purchase' | 'Lease' | 'Sale' | 'Exchange';
+    dealType: DealType;
     currency: string;
     dealValue: number;
     earnestMoney?: number;
     closingDate: string;
     longStopDate?: string;
-    paymentStructure:
-      | 'Single Payment'
-      | 'Milestone Payments'
-      | 'Custom Structure';
+    paymentStructure: PaymentStructure;
   };
 
-  escrow: {
+  escrow?: {
     amount: number;
-    fundingSource:
-      | 'Buyer Deposit'
-      | 'Split Deposit'
-      | 'Third Party';
+    fundingSource: FundingSource;
     releaseConditions: string[];
     holdingPeriod: number;
   };
+
+  stakeholders: {
+    role: ParticipantRole;
+    fullName: string;
+    email: string;
+    phone?: string;
+  }[];
 }
 
 export interface CreateDealResponse {
@@ -198,9 +197,12 @@ export interface CreateDealResponse {
 }
 
 export interface UpdateDealRequest {
-  property?: Partial<CreateDealRequest['property']>;
+  title?: string;
+  propertyId?: string;
+  creatorRole?: ParticipantRole;
   terms?: Partial<CreateDealRequest['terms']>;
   escrow?: Partial<CreateDealRequest['escrow']>;
+  stakeholders?: CreateDealRequest['stakeholders'];
 }
 
 export interface ListDealsParams {
@@ -231,121 +233,34 @@ class DealsService {
       `/deals/${id}`,
     );
 
-  console.log(response.data);
-
     return response.data.data;
   }
 
-  async createDraft(data: CreateDraftRequest): Promise<Deal> {
-    const propertyTypeMap = {
-      Residential: 'RESIDENTIAL',
-      Commercial: 'COMMERCIAL',
-      Industrial: 'INDUSTRIAL',
-      Land: 'LAND',
-      'Mixed Use': 'MIXED_USE',
-    } as const;
-
-    const payload = {
-      title: data.property.name,
-      property: {
-        ...data.property,
-        type:
-          propertyTypeMap[
-            data.property.type as keyof typeof propertyTypeMap
-          ],
-      },
-    };
-
+  async createDraft(
+    data: CreateDraftDealRequest,
+  ): Promise<Deal> {
     const response = await apiClient.post<ApiResponse<Deal>>(
       '/deals/drafts',
-      payload,
+      data,
     );
 
     return response.data.data;
   }
 
-  async publishDeal(data: CreateDealRequest): Promise<CreateDealResponse> {
-    const propertyTypeMap = {
-      Residential: 'RESIDENTIAL',
-      Commercial: 'COMMERCIAL',
-      Industrial: 'INDUSTRIAL',
-      Land: 'LAND',
-      'Mixed Use': 'MIXED_USE',
-    } as const;
+  async create(
+    data: CreateDealRequest,
+  ): Promise<CreateDealResponse> {
+    const response = await apiClient.post<
+      ApiResponse<CreateDealResponse>
+    >('/deals', data);
 
-    const stakeholderRoleMap = {
-      buyer: 'BUYER',
-      seller: 'SELLER',
-      lawyer: 'LAWYER',
-      agent: 'AGENT',
-    } as const;
+    return response.data.data;
+  }
 
-    const dealTypeMap = {
-      Purchase: 'PURCHASE',
-      Lease: 'LEASE',
-      Sale: 'SALE',
-      Exchange: 'EXCHANGE',
-    } as const;
-
-    const paymentStructureMap = {
-      'Single Payment': 'SINGLE_PAYMENT',
-      'Milestone Payments': 'MILESTONE_PAYMENTS',
-      'Custom Structure': 'CUSTOM_STRUCTURE',
-    } as const;
-
-    const fundingSourceMap = {
-      'Buyer Deposit': 'BUYER_DEPOSIT',
-      'Split Deposit': 'SPLIT_DEPOSIT',
-      'Third Party': 'THIRD_PARTY',
-    } as const;
-
-    const payload = {
-      title: data.property.name,
-
-      property: {
-        name: data.property.name,
-        type: propertyTypeMap[data.property.type as keyof typeof propertyTypeMap],
-        address: data.property.address,
-        city: data.property.city,
-        state: data.property.state,
-        country: data.property.country,
-        description: data.property.description,
-        images: data.property.images.map((key) => ({
-          key,
-        })),
-      },
-
-      stakeholders: data.stakeholders.map((stakeholder) => ({
-        role: stakeholderRoleMap[stakeholder.type],
-        fullName: stakeholder.fullName,
-        email: stakeholder.email,
-        phone: stakeholder.phone,
-      })),
-
-      terms: {
-        dealType: dealTypeMap[data.terms.dealType],
-        currency: data.terms.currency,
-        dealValue: data.terms.dealValue,
-        earnestMoney: data.terms.earnestMoney,
-        closingDate: data.terms.closingDate,
-        longStopDate: data.terms.longStopDate,
-        paymentStructure:
-          paymentStructureMap[data.terms.paymentStructure],
-      },
-
-      escrow: {
-        amount: data.escrow.amount,
-        fundingSource: fundingSourceMap[data.escrow.fundingSource],
-        holdingPeriod: data.escrow.holdingPeriod,
-        releaseConditions: data.escrow.releaseConditions,
-      },
-    };
-
-    const response =
-      await apiClient.post<ApiResponse<CreateDealResponse>>(
-        '/deals',
-        payload
-      );
+  async publish(id: string): Promise<Deal> {
+    const response = await apiClient.post<ApiResponse<Deal>>(
+      `/deals/${id}/publish`,
+    );
 
     return response.data.data;
   }
@@ -360,6 +275,10 @@ class DealsService {
     );
 
     return response.data.data;
+  }
+
+  async deleteDeal(id: string): Promise<void> {
+    await apiClient.delete(`/deals/${id}`);
   }
 
   async listDeals(
@@ -379,27 +298,6 @@ class DealsService {
     };
   }
 
-  async uploadPropertyImages(
-    data: UploadPropertyImagesRequest,
-  ): Promise<string[]> {
-    const formData = new FormData();
-
-    data.files.forEach((file) => {
-      formData.append('files', file);
-    });
-
-    const response = await apiClient.post<ApiResponse<string[]>>(
-      `/properties/${data.propertyId}/images`,
-      formData,
-      {
-        headers: {
-          'Content-Type': 'multipart/form-data',
-        },
-      },
-    );
-
-    return response.data.data;
-  }
 }
 
 export const dealsService = new DealsService();
