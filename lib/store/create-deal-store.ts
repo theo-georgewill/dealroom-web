@@ -1,9 +1,25 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
+import type { 
+  ParticipantRole, 
+  PropertyType 
+} from '../services/deals.service';
 
-export type DealType = 'Purchase' | 'Lease' | 'Sale' | 'Exchange';
-export type PaymentStructure = 'Single Payment' | 'Milestone Payments' | 'Custom Structure';
-export type IDType = 'National ID' | 'Passport' | 'Business Registration';
+export type DealType = 
+  | 'Purchase' 
+  | 'Lease' 
+  | 'Sale' 
+  | 'Exchange';
+
+export type PaymentStructure = 
+  | 'Single Payment' 
+  | 'Milestone Payments' 
+  | 'Custom Structure';
+
+export type IDType = 
+  | 'National ID' 
+  | 'Passport' 
+  | 'Business Registration';
 
 export interface StakeholderFormData {
   id: string;
@@ -18,7 +34,7 @@ export interface StakeholderFormData {
 
 export interface PropertyData {
   name: string;
-  type: string;
+  type: PropertyType;
   address: string;
   city: string;
   state: string;
@@ -35,6 +51,15 @@ export interface DealTermsData {
   closingDate: string;
   longStopDate?: string;
   paymentStructure: PaymentStructure;
+  paymentSchedule: PaymentScheduleItem[];
+}
+
+export interface PaymentScheduleItem {
+  id: string;
+  name: string;
+  amount: number;
+  dueDate: string;
+  description?: string;
 }
 
 export interface EscrowData {
@@ -46,6 +71,11 @@ export interface EscrowData {
 }
 
 export interface CreateDealState {
+  // Deal Identity
+  propertyId?: string;
+  creatorRole?: ParticipantRole;
+  dealId?: string;
+
   // Form data
   property: PropertyData;
   stakeholders: StakeholderFormData[];
@@ -56,9 +86,17 @@ export interface CreateDealState {
   currentStep: number;
   
   // Actions
+  setDealId: (dealId: string) => void;
+  setPropertyId: (propertyId: string) => void;
+  setCreatorRole: (creatorRole: ParticipantRole | undefined) => void;
+
   setProperty: (property: Partial<PropertyData>) => void;
   addStakeholder: (stakeholder: StakeholderFormData) => void;
-  updateStakeholder: (id: string, stakeholder: Partial<StakeholderFormData>) => void;
+  updateStakeholder: (
+    id: string, 
+    stakeholder: Partial<StakeholderFormData>
+  ) => void;
+
   removeStakeholder: (id: string) => void;
   setDealTerms: (terms: Partial<DealTermsData>) => void;
   setEscrow: (escrow: Partial<EscrowData>) => void;
@@ -69,9 +107,12 @@ export interface CreateDealState {
 }
 
 const initialState = {
+  dealId: undefined,
+  propertyId: undefined,
+  creatorRole: undefined,
   property: {
     name: '',
-    type: 'Residential',
+    type: 'RESIDENTIAL' as PropertyType,
     address: '',
     city: '',
     state: '',
@@ -88,6 +129,7 @@ const initialState = {
     closingDate: '',
     longStopDate: '',
     paymentStructure: 'Single Payment' as PaymentStructure,
+    paymentSchedule: [],
   },
   escrow: {
     amount: 0,
@@ -103,6 +145,9 @@ export const useCreateDealStore = create<CreateDealState>()(
   persist(
     (set) => ({
       ...initialState,
+      setDealId: (dealId) => set({ dealId }),
+      setPropertyId: (propertyId) => set({ propertyId }),
+      setCreatorRole: (creatorRole) => set({ creatorRole }),
 
       setProperty: (property) =>
         set((state) => ({
@@ -148,7 +193,8 @@ export const useCreateDealStore = create<CreateDealState>()(
     }),
     {
       name: 'create-deal-store',
-      version: 1,
+      version: 2,
+      migrate: () => initialState,
     }
   )
 );
