@@ -7,8 +7,8 @@ const STEPS = [
   { id: 0, label: 'Property', sublabel: 'Property Details' },
   { id: 1, label: 'Parties', sublabel: 'Buyers, sellers & others' },
   { id: 2, label: 'Terms', sublabel: 'Financial & timeline' },
-  { id: 3, label: 'Escrow', sublabel: 'Amount & settings' },
-  { id: 4, label: 'Review', sublabel: 'Confirm & create' },
+  //{ id: 3, label: 'Escrow', sublabel: 'Amount & settings' },
+  { id: 3, label: 'Review', sublabel: 'Confirm & create' },
 ];
 
 export function WizardStepper({ currentStep }: { currentStep: number }) {
