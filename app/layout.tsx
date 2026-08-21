@@ -11,14 +11,14 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: 'Deal Room - Real Estate Transaction Management',
+  title: 'DealRoom - Real Estate Transaction Management',
   description: 'Professional platform for managing real estate transactions securely',
   generator: 'v0.app',
   icons: {
     icon: [
       {
-        url: '/icon.svg',
-        type: 'image/svg+xml',
+        url: '/icon.png',
+        type: 'image/png+xml',
       },
     ],
   },

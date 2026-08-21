@@ -1,14 +1,22 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
-import { useState, Suspense } from 'react';
+import { 
+  useState, 
+  Suspense, 
+  useEffect
+} from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { Plus, Trash2, Users, Building2, User, BadgeCheck } from 'lucide-react';
 import { CreateDealLayout } from '@/components/wizard/create-deal-layout';
 import { WizardNavigation } from '@/components/wizard/wizard-navigation';
-import { useCreateDealStore, StakeholderFormData } from '@/lib/store/create-deal-store';
+import { 
+  useCreateDealStore, 
+  StakeholderFormData 
+} from '@/lib/store/create-deal-store';
+import type { ParticipantRole } from '@/lib/services/deals.service';
 
 const stakeholderSchema = z.object({
   fullName: z.string().min(1, 'Name is required'),
@@ -24,7 +32,21 @@ const stakeholderSchema = z.object({
 
 type StakeholderFormInput = z.infer<typeof stakeholderSchema>;
 
-const PARTY_TYPES = [
+type PartyType = StakeholderFormData['type'];
+
+const creatorRoleMap: Record<PartyType, ParticipantRole> = {
+  buyer: 'BUYER',
+  seller: 'SELLER',
+  lawyer: 'LAWYER',
+  agent: 'AGENT',
+};
+
+const PARTY_TYPES:{
+    id: PartyType;
+    label: string;
+    icon: typeof Users;
+    color: string;
+}[] = [
   { id: 'buyer', label: 'Buyer', icon: Users, color: 'bg-green-50' },
   { id: 'seller', label: 'Seller', icon: Building2, color: 'bg-orange-50' },
   { id: 'lawyer', label: 'Lawyer / Legal Representative', icon: BadgeCheck, color: 'bg-purple-50' },
@@ -34,7 +56,26 @@ const PARTY_TYPES = [
 function PartiesContent() {
   const router = useRouter();
   const store = useCreateDealStore();
-  const [selectedType, setSelectedType] = useState<'buyer' | 'seller' | 'lawyer' | 'agent'>('buyer');
+  
+  const [selectedType, setSelectedType] = useState<PartyType>('buyer');
+  const [selectedCreatorRole, setSelectedCreatorRole] =
+    useState<PartyType | null>(null);
+
+  useEffect(() => {
+    if (!store.creatorRole) {
+      setSelectedCreatorRole(null);
+      return;
+    }
+
+    const roleMap: Record<ParticipantRole, PartyType> = {
+      BUYER: 'buyer',
+      SELLER: 'seller',
+      LAWYER: 'lawyer',
+      AGENT: 'agent',
+    };
+
+    setSelectedCreatorRole(roleMap[store.creatorRole]);
+  }, [store.creatorRole]);
 
   const {
     register,
@@ -64,6 +105,12 @@ function PartiesContent() {
   };
 
   const onProceed = () => {
+    if (!store.creatorRole) {
+      alert('Please select your role in this deal');
+      return;
+    }
+
+    
     if (store.stakeholders.length === 0) {
       alert('Please add at least one stakeholder');
       return;
@@ -87,8 +134,50 @@ function PartiesContent() {
       subtitle="Add the people and organizations involved in this transaction."
     >
       <form onSubmit={handleSubmit(onAddStakeholder)} className="space-y-6">
-        {/* Party Type Selection */}
+        {/* Creator Role */}
         <div>
+          <label className="block text-lg font-semibold text-foreground mb-2">
+            Your Role in This Deal
+          </label>
+
+          <p className="text-sm text-slate-600 mb-4">
+            Select your role in this transaction.
+          </p>
+
+          <div className="grid grid-cols-4 gap-3">
+            {PARTY_TYPES.map((type) => {
+              const Icon = type.icon;
+
+              return (
+                <button
+                  key={type.id}
+                  type="button"
+                  onClick={() => {
+                    setSelectedCreatorRole(type.id);
+                    store.setCreatorRole(creatorRoleMap[type.id]);
+                  }}
+                  className={`min-h-[110px] p-4 rounded-xl border-2 transition-all ${
+                    selectedCreatorRole === type.id
+                      ? 'border-green-900 bg-green-50'
+                      : 'border-slate-200 hover:border-slate-300 bg-white'
+                  }`}
+                >
+                  <Icon
+                    size={22}
+                    className="mb-3 text-slate-700"
+                  />
+
+                  <p className="text-sm font-semibold text-slate-900">
+                    {type.label}
+                  </p>
+                </button>
+              );
+            })}
+          </div>
+        </div>
+
+        {/* Add New Party */}
+        <div className="border-t border-slate-200 pt-6">
           <label className="block text-sm font-semibold text-foreground mb-3">
             Add New Party
           </label>
@@ -99,11 +188,11 @@ function PartiesContent() {
                 <button
                   key={type.id}
                   type="button"
-                  onClick={() => setSelectedType(type.id as any)}
-                  className={`p-4 rounded-lg border-2 transition-all ${
+                  onClick={() => setSelectedType(type.id)}
+                  className={`min-h-[110px] p-4 rounded-xl border-2 transition-all ${
                     selectedType === type.id
                       ? 'border-primary bg-blue-50'
-                      : 'border-slate-200 hover:border-slate-300'
+                      : 'border-slate-200 hover:border-slate-300 bg-white'
                   }`}
                 >
                   <Icon size={20} className="mb-1 text-slate-700" />
@@ -227,7 +316,10 @@ function PartiesContent() {
         <WizardNavigation
           onBack={onBack}
           onNext={onProceed}
-          canProceed={store.stakeholders.length > 0}
+          canProceed={
+            !!store.creatorRole &&
+            store.stakeholders.length > 0
+          }
           isLastStep={false}
         />
       </form>

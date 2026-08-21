@@ -1,6 +1,6 @@
 'use client';
 
-import { useRouter } from 'next/navigation';
+import { useRouter } from 'next/navigation'; 
 import { useState, Suspense } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -9,10 +9,19 @@ import { Upload, X } from 'lucide-react';
 import { CreateDealLayout } from '@/components/wizard/create-deal-layout';
 import { WizardNavigation } from '@/components/wizard/wizard-navigation';
 import { useCreateDealStore } from '@/lib/store/create-deal-store';
+import { useCreateProperty } from '@/hooks/properties/useCreateProperty';
+import { useUploadPropertyImages } from '@/hooks/properties/useUploadPropertyImages';
+import type { PropertyType } from '@/lib/services/properties.service';
 
 const propertySchema = z.object({
   name: z.string().min(1, 'Property name is required'),
-  type: z.string().min(1, 'Property type is required'),
+  type: z.enum([
+    'RESIDENTIAL',
+    'COMMERCIAL',
+    'INDUSTRIAL',
+    'LAND',
+    'MIXED_USE',
+  ]),
   address: z.string().min(1, 'Address is required'),
   city: z.string().min(1, 'City is required'),
   state: z.string().min(1, 'State is required'),
@@ -22,10 +31,17 @@ const propertySchema = z.object({
 
 type PropertyFormData = z.infer<typeof propertySchema>;
 
+type SelectedImage = {
+  file: File;
+  preview: string;
+};
+
 function PropertyContent() {
   const router = useRouter();
   const store = useCreateDealStore();
-  const [uploadedImages, setUploadedImages] = useState<string[]>(store.property.images);
+  const createPropertyMutation = useCreateProperty();
+  const uploadPropertyMutation = useUploadPropertyImages();
+  const [uploadedImages, setUploadedImages] = useState<SelectedImage[]>([]);
 
   const {
     register,
@@ -49,27 +65,54 @@ function PropertyContent() {
 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files || []);
-    const newImages = files.map((file) => URL.createObjectURL(file));
-    setUploadedImages([...uploadedImages, ...newImages]);
+    const newImages: SelectedImage[] = files.map((file) => ({
+      file,
+      preview: URL.createObjectURL(file),
+    }));
+    setUploadedImages((prev)=>[...prev, ...newImages]);
   };
 
   const removeImage = (index: number) => {
     setUploadedImages(uploadedImages.filter((_, i) => i !== index));
   };
 
-  const onSubmit = (data: PropertyFormData) => {
-    store.setProperty({
-      ...data,
-      images: uploadedImages,
-    });
-    router.push('/deals/create/parties');
+  const onSubmit = async (data: PropertyFormData) => {
+    try {
+      // 1. Create the property
+      const property = await createPropertyMutation.mutateAsync({
+        name: data.name,
+        type: data.type,
+        address: data.address,
+        city: data.city,
+        state: data.state,
+        country: data.country,
+        description: data.description,
+      });
+
+      // 2. Save the property ID
+      store.setPropertyId(property.id);
+
+      // 3. Save property data locally
+      store.setProperty({
+        ...data,
+      });
+
+      // 4. Upload images
+      if (uploadedImages.length > 0) {
+        await uploadPropertyMutation.mutateAsync({
+          propertyId: property.id,
+          files: uploadedImages.map((image) => image.file),
+        });
+      }
+
+      // 5. Continue to parties
+      router.push('/deals/create/parties');
+    } catch (error) {
+      console.error('Failed to create property:', error);
+    }
   };
 
   const onBack = () => {
-    store.setProperty({
-      ...formData,
-      images: uploadedImages,
-    });
     router.push('/deals');
   };
 
@@ -102,10 +145,11 @@ function PropertyContent() {
               {...register('type')}
               className="w-full px-4 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
             >
-              <option>Residential</option>
-              <option>Commercial</option>
-              <option>Industrial</option>
-              <option>Mixed Use</option>
+              <option value="RESIDENTIAL">Residential</option>
+              <option value="COMMERCIAL">Commercial</option>
+              <option value="INDUSTRIAL">Industrial</option>
+              <option value="MIXED_USE">Mixed Use</option>
+              <option value="LAND">Land</option>
             </select>
             {errors.type && (
               <p className="text-red-500 text-xs mt-1">{errors.type.message}</p>
@@ -231,7 +275,7 @@ function PropertyContent() {
               {uploadedImages.map((image, idx) => (
                 <div key={idx} className="relative group">
                   <img
-                    src={image}
+                    src={image.preview}
                     alt={`Property ${idx + 1}`}
                     className="w-full h-24 object-cover rounded-lg"
                   />

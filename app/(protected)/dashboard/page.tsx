@@ -89,20 +89,20 @@ function RecentActivityCard({
         <div className="flex-1">
           <div className="flex items-center gap-3 mb-2">
             <img
-              src={deal.property.images[0]?.key}
-              alt={deal.property.name}
+              src={deal?.property?.images?.[0]?.key ?? '/property-placeholder.png'}
+              alt={deal?.property?.name}
               className="w-10 h-10 rounded-lg object-cover"
             />
             <div>
-              <p className="font-medium text-foreground text-sm">{deal.property.name}</p>
-              <p className="text-xs text-slate-500">{deal.property.address}</p>
+              <p className="font-medium text-foreground text-sm">{deal?.property?.name}</p>
+              <p className="text-xs text-slate-500">{deal?.property?.address}</p>
             </div>
           </div>
         </div>
         <div className="text-right">
-          <p className="font-semibold text-foreground text-sm">{formatCurrency(deal.terms.dealValue, 'NGN')}</p>
-          <span className={`inline-block px-3 py-1 rounded-full text-xs font-medium mt-2 ${statusColors[deal.status] || 'bg-slate-50 text-slate-700'}`}>
-            {deal.progress}% complete
+          <p className="font-semibold text-foreground text-sm">{formatCurrency(deal?.terms?.dealValue ?? 0, 'NGN')}</p>
+          <span className={`inline-block px-3 py-1 rounded-full text-xs font-medium mt-2 ${statusColors[deal?.status] || 'bg-slate-50 text-slate-700'}`}>
+            {deal?.progress}% complete
           </span>
         </div>
       </div>
@@ -148,13 +148,13 @@ export default function DashboardPage() {
 
   const metrics = {
     totalDealValue: deals.reduce(
-      (sum, deal) => sum + Number(deal.terms.dealValue),
+      (sum, deal) => sum + Number(deal?.terms?.dealValue ?? 0),
       0
     ),
     totalDeals: deals.length,
     activeDeals: activeDeals.length,
     closingThisMonth: deals.filter((deal) => {
-      const closing = new Date(deal.terms.closingDate);
+      const closing = new Date(deal?.terms?.closingDate ?? new Date().toDateString());
       const now = new Date();
 
       return (
@@ -213,39 +213,39 @@ export default function DashboardPage() {
               <Link href={`/deals/${activeDeal.id}`}>
                 <div className="grid grid-cols-3 gap-4 p-5">
                   <img
-                    src={activeDeal.property.images[0]?.key}
-                    alt={activeDeal.property.name}
+                    src={activeDeal?.property?.images?.[0]?.key ?? '/property-placeholder.png'}
+                    alt={activeDeal?.property?.name}
                     className="col-span-1 rounded-xl h-32 object-cover"
                   />
                   <div className="col-span-2">
                     <div className="flex items-start justify-between mb-2">
                       <div>
-                        <h3 className="text-lg font-bold text-foreground">{activeDeal.property.name}</h3>
-                        <p className="text-xs text-slate-500">{activeDeal.property.address}</p>
+                        <h3 className="text-lg font-bold text-foreground">{activeDeal?.property?.name}</h3>
+                        <p className="text-xs text-slate-500">{activeDeal?.property?.address}</p>
                       </div>
                       <span className="px-2 py-1 bg-blue-50 text-blue-700 rounded-full text-xs font-semibold whitespace-nowrap">
-                        {activeDeal.progress}%
+                        {activeDeal?.progress}%
                       </span>
                     </div>
                     <div className="space-y-2 text-xs mb-3">
                       <div className="flex justify-between">
                         <span className="text-slate-600">Deal Value</span>
-                        <span className="font-semibold text-foreground">{formatCurrency(activeDeal.terms.dealValue, 'NGN')}</span>
+                        <span className="font-semibold text-foreground">{formatCurrency(activeDeal?.terms?.dealValue ?? 0, 'NGN')}</span>
                       </div>
                       <div className="flex justify-between">
                         <span className="text-slate-600">Closing</span>
-                        <span className="font-semibold text-foreground">{formatDate(activeDeal.terms.closingDate)}</span>
+                        <span className="font-semibold text-foreground">{formatDate(activeDeal?.terms?.closingDate ?? new Date().toDateString())}</span>
                       </div>
                       <div className="flex justify-between">
                         <span className="text-slate-600">Parties</span>
-                        <span className="font-semibold text-foreground">{activeDeal.participants.length}</span>
+                        <span className="font-semibold text-foreground">{activeDeal?.participants?.length ?? 0}</span>
                       </div>
                     </div>
                     {/* Progress Bar */}
                     <div className="w-full bg-slate-100 rounded-full h-1.5 overflow-hidden">
                       <div
                         className="bg-primary h-full transition-all"
-                        style={{ width: `${activeDeal.progress}%` }}
+                        style={{ width: `${activeDeal?.progress}%` }}
                       />
                     </div>
                   </div>
@@ -279,7 +279,7 @@ export default function DashboardPage() {
               <div className="space-y-3">
                 <div>
                   <p className="text-xs text-slate-600 mb-1 font-medium">Balance</p>
-                  <p className="text-xl font-bold text-primary">{formatCurrency(activeDeal.escrow.amount, 'NGN')}</p>
+                  <p className="text-xl font-bold text-primary">{formatCurrency(activeDeal?.escrow?.amount ?? 0, 'NGN')}</p>
                 </div>
                 <div className="pt-3 border-t border-slate-200">
                   <p className="text-xs text-slate-600 mb-1.5 font-medium">Provider</p>

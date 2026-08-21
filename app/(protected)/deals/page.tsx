@@ -98,7 +98,7 @@ export default function DealsPage() {
     ).length,
 
     totalValue: deals.reduce(
-      (sum, d) => sum + Number(d.terms.dealValue),
+      (sum, d) => sum + Number(d?.terms?.dealValue ?? 0),
       0
     ),
   };
@@ -210,8 +210,8 @@ export default function DealsPage() {
                   <td className="px-6 py-3">
                     <div className="flex items-center gap-3">
                       <img
-                        src={deal.property.images[0]?.key ?? '/images/property-placeholder.jpg'}
-                        alt={deal.property.name}
+                        src={deal?.property?.images?.[0]?.key ?? '/property-placeholder.png'}
+                        alt={deal?.property?.name}
                         className="w-9 h-9 rounded-lg object-cover"
                       />
                       <div>
@@ -220,10 +220,10 @@ export default function DealsPage() {
                       </div>
                     </div>
                   </td>
-                  <td className="px-6 py-3 text-sm text-foreground">{deal.property.address}</td>
+                  <td className="px-6 py-3 text-sm text-foreground">{deal?.property?.address}</td>
                   <td className="px-6 py-3">
                     <span className="inline-block px-2.5 py-1 bg-blue-50 text-blue-700 rounded-full text-xs font-medium">
-                      {deal.terms.dealType}
+                      {deal?.terms?.dealType}
                     </span>
                   </td>
                   <td className="px-6 py-3">
@@ -246,8 +246,8 @@ export default function DealsPage() {
                   </td>
                   <td className="px-6 py-3 font-semibold text-foreground text-sm">{
                     formatCurrency(
-                      Number(deal.terms.dealValue),
-                      deal.terms.currency
+                      Number(deal?.terms?.dealValue ?? 0),
+                      deal?.terms?.currency ?? "NGN"
                     )
                   }</td>
                   <td className="px-6 py-3">
