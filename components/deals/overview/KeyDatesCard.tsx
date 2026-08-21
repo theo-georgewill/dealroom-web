@@ -30,7 +30,7 @@ export function KeyDatesCard({
           </div>
 
           <span className="font-medium">
-            {formatDate(deal.createdAt)}
+            {formatDate(deal?.createdAt)}
           </span>
         </div>
 
@@ -44,7 +44,7 @@ export function KeyDatesCard({
           </div>
 
           <span className="font-medium">
-            {formatDate(deal.terms.closingDate)}
+            {formatDate(deal?.terms?.closingDate ?? "")}
           </span>
         </div>
 
@@ -58,7 +58,7 @@ export function KeyDatesCard({
           </div>
 
           <span className="font-medium">
-            {formatDate(deal.updatedAt)}
+            {formatDate(deal?.updatedAt)}
           </span>
         </div>
       </div>

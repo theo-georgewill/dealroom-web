@@ -21,7 +21,7 @@ const TAB_OPTIONS = [
   { value: 'overview', label: 'Overview', icon: BarChart3 },
   { value: 'documents', label: 'Documents', icon: FileText },
   { value: 'stakeholders', label: 'Stakeholders', icon: Users },
-  { value: 'checklist', label: 'Checklist', icon: CheckSquare },
+  { value: 'checklist', label: 'Milestones & Tasks', icon: CheckSquare },
   { value: 'escrow', label: 'Escrow', icon: BarChart3 },
   { value: 'activity', label: 'Activity', icon: MessageSquare },
 ];
@@ -105,15 +105,17 @@ export default function DealDetailPage() {
         <div className="bg-white border border-border rounded-lg overflow-hidden mb-6">
           <div className="grid grid-cols-3 gap-6 p-6">
             <img
-              src={deal.property.images[0]?.key ? deal.property.images[0].key : '/images/property-placeholder.jpg'}
-              alt={deal.property.name}
+              src={deal.property?.images?.[0]?.key ?? '/property-placeholder.png'}
+              alt={deal.property?.name ?? 'Property'}
               className="col-span-1 rounded-lg h-48 object-cover"
             />
             <div className="col-span-2">
               <div className="flex items-start justify-between mb-4">
                 <div>
                   <h2 className="text-2xl font-bold text-foreground">{deal.title}</h2>
-                  <p className="text-muted-foreground mt-1">{deal.property.address}</p>
+                  <p className="text-muted-foreground mt-1">
+                    {deal.property?.address ?? 'Property details unavailable'}
+                  </p>
                 </div>
                 <span className={`px-3 py-1 rounded-full text-sm font-semibold ${statusColors[deal.status]}`}>
                   {deal.status}
@@ -123,15 +125,23 @@ export default function DealDetailPage() {
               <div className="grid grid-cols-3 gap-4 mb-6">
                 <div>
                   <p className="text-xs text-muted-foreground mb-1">Property Type</p>
-                  <p className="font-semibold text-foreground">{deal.property.type}</p>
+                  <p className="font-semibold text-foreground">
+                    {deal.property?.type ?? '—'}
+                  </p>
                 </div>
                 <div>
                   <p className="text-xs text-muted-foreground mb-1">Deal Value</p>
-                  <p className="font-semibold text-foreground">{formatCurrency(deal.terms.dealValue, 'NGN')}</p>
+                  <p className="font-semibold text-foreground">
+                    {deal.terms
+                      ? formatCurrency(deal.terms.dealValue, deal.terms.currency)
+                      : '—'}
+                  </p>
                 </div>
                 <div>
                   <p className="text-xs text-muted-foreground mb-1">Closing Date</p>
-                  <p className="font-semibold text-foreground">{formatDate(deal.terms.closingDate)}</p>
+                  <p className="font-semibold text-foreground">
+                    {deal.terms ? formatDate(deal.terms.closingDate) : '—'}
+                  </p>
                 </div>
               </div>
 

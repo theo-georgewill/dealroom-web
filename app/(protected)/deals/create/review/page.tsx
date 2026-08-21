@@ -7,7 +7,7 @@ import { CreateDealLayout } from '@/components/wizard/create-deal-layout';
 import { useCreateDealStore } from '@/lib/store/create-deal-store';
 import { formatCurrency, formatDate } from '@/lib/utils';
 import { dealsService } from '@/lib/services/deals.service';
-import { paymentService } from '@/lib/services/payment.service';
+//import { paymentService } from '@/lib/services/payment.service';
 
 function ReviewContent() {
   const router = useRouter();
@@ -19,25 +19,53 @@ function ReviewContent() {
 
     try {
       // 1. Create deal
-      const deal = await dealsService.createDeal({
-        property: store.property,
-        stakeholders: store.stakeholders.map(({ id, ...stakeholder }) => stakeholder),
-        terms: store.dealTerms,
-        escrow: store.escrow,
-      });
+    const deal = await dealsService.create({
+      title: store.property.name,
+      propertyId: store.propertyId!,
+      creatorRole: store.creatorRole!,
+      terms: {
+        dealType: store.dealTerms.dealType.toUpperCase() as
+          | 'PURCHASE'
+          | 'LEASE'
+          | 'SALE'
+          | 'EXCHANGE',
+        currency: store.dealTerms.currency,
+        dealValue: store.dealTerms.dealValue,
+        earnestMoney: store.dealTerms.earnestMoney,
+        closingDate: store.dealTerms.closingDate,
+        longStopDate: store.dealTerms.longStopDate || undefined,
+        paymentStructure: store.dealTerms.paymentStructure.toUpperCase().replace(
+          ' ',
+          '_',
+        ) as
+          | 'SINGLE_PAYMENT'
+          | 'MILESTONE_PAYMENTS'
+          | 'CUSTOM_STRUCTURE',
+      },
+      stakeholders: store.stakeholders.map((stakeholder) => ({
+        role: stakeholder.type.toUpperCase() as
+          | 'BUYER'
+          | 'SELLER'
+          | 'LAWYER'
+          | 'AGENT',
+        fullName: stakeholder.fullName,
+        email: stakeholder.email,
+        phone: stakeholder.phone,
+      })),
+    });
 
       // 2. Initialize Nomba escrow payment
-      const payment = await paymentService.initializeEscrow({
-        escrowId: deal.payment.escrowId,
-        amount: deal.payment.amount,
-      });
+      //const payment = await paymentService.initializeEscrow({
+      //  escrowId: deal.payment.escrowId,
+      //  amount: deal.payment.amount,
+      //});
 
       // 3. Redirect to Nomba
-      window.open(
-        payment.checkoutUrl,
-        '_blank',
-        'noopener,noreferrer'
-      );
+      //window.open(
+      //  payment.checkoutUrl,
+      //  '_blank',
+      //  'noopener,noreferrer'
+      //);
       router.push(`/deals/${deal.createdDeal.id}`);
     } finally {
       setIsCreating(false);
@@ -45,12 +73,12 @@ function ReviewContent() {
   };
 
   const onBack = () => {
-    router.push('/deals/create/escrow');
+    router.push('/deals/create/terms');
   };
 
   return (
     <CreateDealLayout
-      currentStep={4}
+      currentStep={3}
       title="Review & Confirm"
       subtitle="Review all details before creating the deal. You can edit any section if needed."
     >

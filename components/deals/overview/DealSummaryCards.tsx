@@ -17,7 +17,7 @@ export function DealSummaryCards({
 
         <p className="text-lg font-bold text-foreground">
           {formatCurrency(
-            deal.terms.dealValue,
+            deal?.terms?.dealValue ?? 0,
             "NGN"
           )}
         </p>
@@ -30,7 +30,7 @@ export function DealSummaryCards({
 
         <p className="text-lg font-bold text-foreground">
           {formatCurrency(
-            Number(deal.terms.earnestMoney || 0),
+            Number(deal?.terms?.earnestMoney || 0),
             "NGN"
           )}
         </p>
@@ -42,7 +42,7 @@ export function DealSummaryCards({
         </p>
 
         <p className="text-lg font-bold text-foreground">
-          {formatDate(deal.terms.closingDate)}
+          {formatDate(deal?.terms?.closingDate ?? "")}
         </p>
       </div>
 

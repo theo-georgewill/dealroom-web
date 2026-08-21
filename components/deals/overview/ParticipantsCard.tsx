@@ -34,7 +34,7 @@ export function DealParticipantsCard({
               <img
                 src={
                   participant.user.avatar ??
-                  "/images/avatar-placeholder.png"
+                  "/avatar-placeholder.png"
                 }
                 alt={participant.user.firstName}
                 className="h-10 w-10 rounded-full object-cover"

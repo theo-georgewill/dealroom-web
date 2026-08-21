@@ -24,7 +24,7 @@ export function EscrowStatusCard({ deal }: { deal: Deal }) {
           </p>
 
           <p className="mt-1 text-3xl font-bold">
-            {formatCurrency(deal.escrow.amount, "NGN")}
+            {formatCurrency(deal?.escrow?.amount ?? 0, "NGN")}
           </p>
 
           <p className="mt-2 text-sm text-muted-foreground">
@@ -54,7 +54,7 @@ export function EscrowStatusCard({ deal }: { deal: Deal }) {
           </span>
 
           <span className="font-medium">
-            {deal.escrow.accountNumber || "—"}
+            {deal?.escrow?.accountNumber || "—"}
           </span>
         </div>
 

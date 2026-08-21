@@ -18,7 +18,7 @@ export function ESCROW_STATS(
   deal: Deal,
 ): EscrowStat[] {
   const completedConditions =
-    deal.escrow.releaseConditions.filter(
+    deal?.escrow?.releaseConditions.filter(
       (condition) => condition.completed,
     ).length;
 
@@ -26,10 +26,10 @@ export function ESCROW_STATS(
     {
       title: "Escrow Amount",
       value: `${formatCurrency(
-        deal.escrow.amount,
-        deal.escrow.currency,
+        deal?.escrow?.amount ?? 0,
+        deal?.escrow?.currency ?? 'NGN',
       )}`,
-      description: deal.escrow.currency,
+      description: deal?.escrow?.currency ?? 'NGN',
       icon: CircleDollarSign,
       iconClassName:
         "bg-violet-100 text-violet-600",
@@ -37,8 +37,8 @@ export function ESCROW_STATS(
     {
       title: "Funds Held",
       value: `${formatCurrency(
-        deal.escrow.amount,
-        deal.escrow.currency,
+        deal?.escrow?.amount ?? 0,
+        deal?.escrow?.currency ?? 'NGN',
       )}`,
       description: "100% funded",
       icon: Lock,
@@ -47,11 +47,11 @@ export function ESCROW_STATS(
     },
     {
       title: "Release Conditions",
-      value: `${completedConditions} of ${deal.escrow.releaseConditions.length}`,
+      value: `${completedConditions} of ${deal?.escrow?.releaseConditions.length ?? 0}`,
       description: `${Math.round(
-        (completedConditions /
+        ((completedConditions ? completedConditions : 0) /
           Math.max(
-            deal.escrow.releaseConditions.length,
+            deal?.escrow?.releaseConditions.length ?? 1,
             1,
           )) *
           100,
@@ -62,10 +62,10 @@ export function ESCROW_STATS(
     },
     {
       title: "Escrow Status",
-      value: deal.escrow.status,
-      description: deal.escrow.fundedAt
+      value: deal?.escrow?.status ?? "PENDING",
+      description: deal?.escrow?.fundedAt
         ? `Since ${new Date(
-            deal.escrow.fundedAt,
+            deal?.escrow?.fundedAt,
           ).toLocaleDateString()}`
         : undefined,
       icon: ShieldCheck,
