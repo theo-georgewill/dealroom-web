@@ -4,7 +4,6 @@ import { useRouter } from 'next/navigation';
 import { 
   useState, 
   Suspense, 
-  useEffect
 } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -41,6 +40,13 @@ const creatorRoleMap: Record<PartyType, ParticipantRole> = {
   agent: 'AGENT',
 };
 
+const creatorRoleReverseMap: Record<ParticipantRole, PartyType> = {
+  BUYER: 'buyer',
+  SELLER: 'seller',
+  LAWYER: 'lawyer',
+  AGENT: 'agent',
+};
+
 const PARTY_TYPES:{
     id: PartyType;
     label: string;
@@ -58,24 +64,9 @@ function PartiesContent() {
   const store = useCreateDealStore();
   
   const [selectedType, setSelectedType] = useState<PartyType>('buyer');
-  const [selectedCreatorRole, setSelectedCreatorRole] =
-    useState<PartyType | null>(null);
-
-  useEffect(() => {
-    if (!store.creatorRole) {
-      setSelectedCreatorRole(null);
-      return;
-    }
-
-    const roleMap: Record<ParticipantRole, PartyType> = {
-      BUYER: 'buyer',
-      SELLER: 'seller',
-      LAWYER: 'lawyer',
-      AGENT: 'agent',
-    };
-
-    setSelectedCreatorRole(roleMap[store.creatorRole]);
-  }, [store.creatorRole]);
+  const selectedCreatorRole = store.creatorRole
+    ? creatorRoleReverseMap[store.creatorRole]
+    : null;
 
   const {
     register,
@@ -153,7 +144,6 @@ function PartiesContent() {
                   key={type.id}
                   type="button"
                   onClick={() => {
-                    setSelectedCreatorRole(type.id);
                     store.setCreatorRole(creatorRoleMap[type.id]);
                   }}
                   className={`min-h-[110px] p-4 rounded-xl border-2 transition-all ${
