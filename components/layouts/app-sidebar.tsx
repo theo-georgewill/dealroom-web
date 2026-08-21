@@ -1,8 +1,8 @@
 'use client';
 
-import React from 'react';
+import React, { useState } from 'react';
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import {
   Home,
   FileText,
@@ -18,9 +18,8 @@ import {
   Menu,
   X,
 } from 'lucide-react';
-import { useState } from 'react';
 import { cn } from '@/lib/utils';
-import { MOCK_USERS } from '@/lib/data';
+import { useAuth } from '@/hooks/useAuth';
 
 const NAVIGATION_ITEMS = [
   { label: 'Dashboard', href: '/dashboard', icon: Home },
@@ -37,19 +36,46 @@ const NAVIGATION_ITEMS = [
 
 export function AppSidebar() {
   const pathname = usePathname();
+  const router = useRouter();
+
+  const { user, isLoading, logout } = useAuth();
+
   const [isOpen, setIsOpen] = useState(false);
-  const currentUser = MOCK_USERS.theodore;
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
 
   const isActive = (href: string) => {
     return pathname.startsWith(href);
   };
 
+  const handleLogout = async () => {
+    if (isLoggingOut) return;
+
+    try {
+      setIsLoggingOut(true);
+      setIsOpen(false);
+
+      await logout();
+
+      router.replace('/auth/signin');
+    } catch (error) {
+      console.error('Logout failed:', error);
+    } finally {
+      setIsLoggingOut(false);
+    }
+  };
+
+  const initials = user
+    ? `${user.firstName.charAt(0)}${user.lastName.charAt(0)}`.toUpperCase()
+    : '';
+
   return (
     <>
       {/* Mobile Toggle */}
       <button
+        type="button"
         onClick={() => setIsOpen(!isOpen)}
         className="fixed top-4 left-4 z-40 md:hidden p-2 hover:bg-gray-100 rounded-lg"
+        aria-label={isOpen ? 'Close menu' : 'Open menu'}
       >
         {isOpen ? <X size={24} /> : <Menu size={24} />}
       </button>
@@ -65,10 +91,13 @@ export function AppSidebar() {
         {/* Logo */}
         <div className="p-6 border-b border-border">
           <Link href="/" className="flex items-center gap-2">
-            <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center text-white font-bold text-lg">
-              D
+            <div className="h-8 w-40 overflow-hidden">
+              <img
+                src="/logo.png"
+                alt="DealRoom"
+                className="h-full scale-[3] origin-left"
+              />
             </div>
-            <span className="font-bold text-lg text-foreground">Deal Room</span>
           </Link>
         </div>
 
@@ -84,17 +113,20 @@ export function AppSidebar() {
                   key={item.href}
                   href={item.href}
                   onClick={() => setIsOpen(false)}
-                className={cn(
-                  'flex items-center justify-between px-3 py-2 rounded-lg transition-colors',
-                  active
-                    ? 'bg-blue-50 text-primary'
-                    : 'text-foreground hover:bg-slate-100'
-                )}
+                  className={cn(
+                    'flex items-center justify-between px-3 py-2 rounded-lg transition-colors',
+                    active
+                      ? 'bg-blue-50 text-primary'
+                      : 'text-foreground hover:bg-slate-100'
+                  )}
                 >
                   <div className="flex items-center gap-3">
                     <Icon size={20} />
-                    <span className="font-medium text-sm">{item.label}</span>
+                    <span className="font-medium text-sm">
+                      {item.label}
+                    </span>
                   </div>
+
                   {item.badge && (
                     <span className="bg-primary text-white text-xs font-semibold rounded-full w-5 h-5 flex items-center justify-center">
                       {item.badge}
@@ -106,26 +138,6 @@ export function AppSidebar() {
           </div>
         </nav>
 
-        {/* User Section */}
-        <div className="border-t border-border p-4">
-          <div className="flex items-center justify-between mb-4">
-            <div className="flex items-center gap-3">
-              <img
-                src={currentUser.avatar}
-                alt={currentUser.name}
-                className="w-10 h-10 rounded-full"
-              />
-              <div>
-                <p className="text-sm font-medium text-foreground">{currentUser.name}</p>
-                <p className="text-xs text-muted-foreground">{currentUser.role}</p>
-              </div>
-            </div>
-          </div>
-          <button className="w-full flex items-center gap-2 px-3 py-2 text-sm text-foreground hover:bg-secondary rounded-lg transition-colors">
-            <LogOut size={18} />
-            <span>Logout</span>
-          </button>
-        </div>
       </aside>
 
       {/* Mobile Overlay */}
