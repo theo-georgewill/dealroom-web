@@ -4,8 +4,8 @@ import { formatCurrency } from "@/lib/utils";
 
 export function PropertySummaryCard({ deal }: { deal: Deal }) {
   const image =
-    deal.property.images?.[0]?.key ??
-    "/images/property-placeholder.jpg";
+    deal?.property?.images?.[0]?.key ??
+    "/property-placeholder.png";
 
   return (
     <div className="rounded-xl border border-border bg-card p-6">
@@ -15,7 +15,7 @@ export function PropertySummaryCard({ deal }: { deal: Deal }) {
 
       <img
         src={image}
-        alt={deal.property.name}
+        alt={deal?.property?.name}
         className="mb-4 h-48 w-full rounded-lg object-cover"
       />
 
@@ -23,7 +23,7 @@ export function PropertySummaryCard({ deal }: { deal: Deal }) {
         <MapPin className="mt-0.5 h-4 w-4 text-muted-foreground shrink-0" />
 
         <p className="text-sm text-muted-foreground">
-          {deal.property.address}
+          {deal?.property?.address}
         </p>
       </div>
 
@@ -34,7 +34,7 @@ export function PropertySummaryCard({ deal }: { deal: Deal }) {
           </span>
 
           <span className="font-medium text-foreground">
-            {deal.property.type}
+            {deal?.property?.type}
           </span>
         </div>
 
@@ -44,7 +44,7 @@ export function PropertySummaryCard({ deal }: { deal: Deal }) {
           </span>
 
           <span className="font-semibold text-foreground">
-            {formatCurrency(deal.terms.dealValue, "NGN")}
+            {formatCurrency(deal?.terms?.dealValue ?? 0, "NGN")}
           </span>
         </div>
       </div>

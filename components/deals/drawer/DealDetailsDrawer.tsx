@@ -70,10 +70,10 @@ export function DealDetailsDrawer({
         <div className="mb-6">
           <img
             src={
-              deal.property.images[0]?.key ??
-              '/images/property-placeholder.jpg'
+              deal?.property?.images?.[0]?.key ??
+              '/property-placeholder.png'
             }
-            alt={deal.property.name}
+            alt={deal?.property?.name}
             className="mb-3 h-32 w-full rounded-lg object-cover"
           />
 
@@ -82,7 +82,7 @@ export function DealDetailsDrawer({
           </h3>
 
           <p className="text-sm text-muted-foreground">
-            {deal.property.address}
+            {deal?.property?.address ?? '—'}
           </p>
         </div>
 
@@ -91,20 +91,20 @@ export function DealDetailsDrawer({
         <div className="mb-6 space-y-4 border-b pb-6">
           <InfoRow
             label="Deal Type"
-            value={deal.terms.dealType}
+            value={deal?.terms?.dealType ?? '—'}
           />
 
           <InfoRow
             label="Deal Value"
             value={formatCurrency(
-              deal.terms.dealValue,
+              deal?.terms?.dealValue ?? 0,
               'NGN'
             )}
           />
 
           <InfoRow
             label="Currency"
-            value={deal.terms.currency}
+            value={deal?.terms?.currency ?? '—'}
           />
 
           <InfoRow
@@ -127,9 +127,11 @@ export function DealDetailsDrawer({
 
           <InfoRow
             label="Closing Date"
-            value={formatDate(
-              deal.terms.closingDate
-            )}
+            value={
+              deal?.terms?.closingDate
+                ? formatDate(deal.terms.closingDate.toString())
+                : '—'
+            }
           />
         </div>
 
@@ -148,7 +150,7 @@ export function DealDetailsDrawer({
             <p className="mt-2 text-sm text-green-700">
               Balance:{' '}
               {formatCurrency(
-                deal.escrow.amount,
+                deal?.escrow?.amount ?? 0,
                 'NGN'
               )}
             </p>

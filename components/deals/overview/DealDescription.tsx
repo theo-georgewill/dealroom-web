@@ -7,7 +7,7 @@ export function DealDescription({
 }: {
   deal: Deal;
 }) {
-  if (!deal.property.description) {
+  if (!deal?.property?.description) {
     return null;
   }
 
@@ -18,7 +18,7 @@ export function DealDescription({
       </h4>
 
       <p className="text-sm text-muted-foreground">
-        {deal.property.description}
+        {deal?.property?.description}
       </p>
     </div>
   );
